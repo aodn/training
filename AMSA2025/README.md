@@ -12,7 +12,7 @@
 | 09:00 | Welcome & acknowledgement of Country                                                      | Fabrice Jaine      |
 | 09:15 | IMOS program overview                                                                     | Fabrice Jaine      |
 | 09:45 | How reliable are IMOS Data? (IMOS practices documentation, AODN certs, acknowledgement)   | Rebecca Zitoun     |
-| 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Mark, Vicky, Bene? |
+| 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Mark Rehbein, Vicky Issac, Bene Pasquer |
 | 10:30 | MORNING TEA                                                                               |                    |
 | 11:00 | IMOS OceanCurrent                                                                         | Gabriela Pilo TBC  |
 | 11:30 | IMOS Biological Ocean Observer                                                            | Claire Davies TBC  |
