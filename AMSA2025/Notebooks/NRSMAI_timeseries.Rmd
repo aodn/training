@@ -16,7 +16,7 @@ Last updated: `r Sys.Date()`
 
 ## Goal
 
-This notebook shows how to extract and plot a temperature and salinity times series from the Maria Island mooring. We will use AODN cloud-optimised ANMR hourly product, which is delivered as a Parquet file. This file is partitiones and sorted by `site_code`, `timestap` (3 months range), and `polygon` which is a cell that contains the data.
+This notebook shows how to extract and plot a temperature and salinity times series from the Maria Island mooring. We will use AODN cloud-optimised ANMN hourly product, which is delivered as a Parquet file. This file is partitiones and sorted by `site_code`, `timestap` (3 months range), and `polygon` which is a cell that contains the data.
 
 ## Load packages
 We will need `arrow`, `dplyr` and `ggplot2` plus `lubridate` to manage time.
@@ -214,7 +214,7 @@ ggplot(monthly_climatology, aes(x = month, y = PSALmean, group = NOMINAL_DEPTH))
   theme(legend.position = "none")
 ```
 
-## Monthly temprature and salinity annomalies
+## Monthly temperature and salinity annomalies
 
 We can calculate the monthly anomalies for temperature and salinity by subtracting the monthly climatology from the actual values. We will use the `left_join()` function to join the monthly climatology with the original data. Plot the last five years of data.
 
@@ -263,6 +263,6 @@ ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = PSAL_anoma
 
 ## Conclusion
 
-In this notebook, we have extracted and plotted the temperature and salinity time series from the Maria Island mooring using the AODN cloud-optimised ANMR hourly product. We have also calculated the monthly climatology and anomalies for temperature and salinity. The plots show the variations in temperature and salinity over time, as well as the monthly climatology and anomalies for each depth.
+In this notebook, we have extracted and plotted the temperature and salinity time series from the Maria Island mooring using the AODN cloud-optimised ANMN hourly product. We have also calculated the monthly climatology and anomalies for temperature and salinity. The plots show the variations in temperature and salinity over time, as well as the monthly climatology and anomalies for each depth.
 
 
