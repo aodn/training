@@ -31,6 +31,7 @@ suppressPackageStartupMessages({
   library(ggthemes)
   library(kableExtra)
   library(leaflet)
+  library(patchwork)
 })
 
 ```
@@ -216,16 +217,21 @@ ggplot(monthly_climatology, aes(x = month, y = PSALmean, group = NOMINAL_DEPTH))
 
 ## Monthly temperature and salinity annomalies
 
-We can calculate the monthly anomalies for temperature and salinity by subtracting the monthly climatology from the actual values. We will use the `left_join()` function to join the monthly climatology with the original data. Plot the last five years of data.
+We can calculate the monthly anomalies for temperature and salinity by subtracting the monthly climatology from the actual monthly mean values. We will use the `left_join()` function to join the monthly climatology with the original data. Plot the last five years of data.
 
-```{r}
+```{r, fig.width = 10, fig.height = 14}
 # Join the monthly climatology with the original data
 maria_anomalies <- maria_data |>
   filter(NOMINAL_DEPTH != 25) |>
-  mutate(month = month(TIME)) |>
+  mutate(year = year(TIME), month = month(TIME)) |>
+  group_by(year, month, NOMINAL_DEPTH) |>
+  summarise(TEMP = mean(TEMP, na.rm = TRUE),
+            PSAL = mean(PSAL, na.rm = TRUE),
+            .groups = 'drop') |>
   left_join(monthly_climatology, by = c("month", "NOMINAL_DEPTH")) |>
   mutate(TEMP_anomaly = TEMP - TEMPmean,
          PSAL_anomaly = PSAL - PSALmean) |>
+  mutate(TIME = make_datetime(year, month, 1)) |>
   select(TIME, NOMINAL_DEPTH, TEMP_anomaly, PSAL_anomaly)
 
 ## add a colour column to the anomalies data frame with red for positive anomalies and blue for negative anomalies
@@ -235,28 +241,36 @@ maria_anomalies <- maria_anomalies |>
 
 
 # Plot the temperature anomalies. Plot positive anomalies in red and negative in blue
-ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = TEMP_anomaly)) +
-  geom_line(aes(color = TEMP_color)) +
+ppTEMP <- ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = TEMP_anomaly)) +
+  geom_col(aes(fill = TEMP_color)) +
+  geom_hline(yintercept = 0, color = "black") +
   facet_grid(NOMINAL_DEPTH~.) +
   labs(title = "Maria Island Mooring: Temperature Anomalies",
        x = "",
        y = "Temperature Anomaly (°C)") +
-  scale_color_manual(values = c("red" = "red", "blue" = "blue")) +
+  scale_fill_manual(values = c("red" = "red", "blue" = "blue")) +
   theme_clean() +
   theme(legend.position = "none")
 
 
 
 # Plot the salinity anomalies. Plot positive anomalies in red and negative in blue
-ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = PSAL_anomaly)) +
-  geom_line(aes(color = PSAL_color)) +
+ppPSAL <- ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = PSAL_anomaly)) +
+  geom_col(aes(fill = PSAL_color)) +
+  geom_hline(yintercept = 0, color = "black") +
   facet_grid(NOMINAL_DEPTH~.) +
   labs(title = "Maria Island Mooring: Salinity Anomalies",
        x = "",
        y = "Salinity Anomaly (PSU)") +
-  scale_color_manual(values = c("red" = "red", "blue" = "blue")) +
+  scale_fill_manual(values = c("red" = "red", "blue" = "blue")) +
   theme_clean() +
   theme(legend.position = "none")
+
+ppTEMP / ppPSAL + 
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "Maria Island Mooring: Monthly Anomalies",
+                  subtitle = "Temperature and Salinity Anomalies (2020-2024)",
+                  caption = "Data source: AODN cloud-optimised ANMN hourly product")
 
 ```
 
