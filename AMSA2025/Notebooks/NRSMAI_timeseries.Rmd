@@ -1,0 +1,266 @@
+---
+title: "Maria Island time-series"
+author: "E Klein"
+date: "2025-06-17"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    number_sections: true
+    theme: cosmo
+    highlight: tango
+---
+
+Last updated: `r Sys.Date()`
+
+## Goal
+
+This notebook shows how to extract and plot a temperature and salinity times series from the Maria Island mooring. We will use AODN cloud-optimised ANMR hourly product, which is delivered as a Parquet file. This file is partitiones and sorted by `site_code`, `timestap` (3 months range), and `polygon` which is a cell that contains the data.
+
+## Load packages
+We will need `arrow`, `dplyr` and `ggplot2` plus `lubridate` to manage time.
+
+```{r}
+## load libraries, suppress warnings and messages
+suppressPackageStartupMessages({
+  library(arrow)
+  library(dplyr)
+  library(ggplot2)
+  library(lubridate)
+  library(ggthemes)
+  library(kableExtra)
+  library(leaflet)
+})
+
+```
+
+## Load data
+
+First we need to create a connection with the cloud-optimise data store. We will use the `arrow` package to read the Parquet file. The mooring hourly time-series data is located in `s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/`
+
+```{r}
+# Create a connection to the cloud-optimised data store
+uri <- "s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/"
+## the s3_bucket function will automatically detect the region, but we can also specify it
+bucket <- s3_bucket(uri, anonymous=TRUE, region="ap-southeast-2")
+
+# Read the Parquet file
+df <- open_dataset(bucket)
+```
+
+
+These are the columns in the dataset:
+
+```{r}
+print(df$schema)
+```
+
+## Get Maria Island data
+
+As mentioned at the beginning, this dataset has `site_code` as a primiary sort key. Using `filter()` we can select the data for Maria Island mooring, which has `site_code = "NRSMAI"`.
+
+```{r}
+# Filter the dataset for Maria Island mooring
+maria_data <- df |>
+  filter(site_code == "NRSMAI") |>
+  collect()  # Collect the data into a local data frame
+
+# Check the first few rows of the data
+glimpse(maria_data)
+```
+
+Now, we have the data locally in our machine. Note that there are multiple variables, not all are available for this station. The main time indicator is the variable `TIME`.
+
+## Location of the mooring
+
+We can plot the location of the Maria Island mooring using `leaflet`. The mooring coordinates are in the `LATITUDE` and `LONGITUDE` columns. We will use the `leaflet` package to create an interactive map. Note that coordinates may vary slightly depending on the deployment, but they are generally around the same location. We will take the average location for the map.
+
+```{r}
+# Calculate the average location of the mooring
+avg_location <- maria_data |>
+  summarise(lat = mean(LATITUDE, na.rm = TRUE),
+            lon = mean(LONGITUDE, na.rm = TRUE))
+# Create a leaflet map
+leaflet(avg_location) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~lon, lat = ~lat,
+                   radius = 5, 
+                   color = "blue", 
+                   fillColor = "blue", 
+                   fillOpacity = 0.5, 
+                   stroke = FALSE,
+                   label = ~paste("Maria Island Mooring (NRSMAI)"),
+                   labelOptions = labelOptions(noHide = FALSE, direction = "top")) |>
+  setView(lng = avg_location$lon, lat = avg_location$lat, zoom = 7) 
+```
+
+
+## Plot temperature and salinity time series
+
+We will plot the temperature and salinity time series using `ggplot2`. Note that the mooring array has instrument depployed at different depths. With every deployment the target depth could change. The indicator of the target depth is `NOMINAL_DEPTH`. We will use the `NOMINAL_DEPTH`.
+
+Let's explore the data a bit more to see the available depths and how many data point we have for each depth.
+
+```{r}
+# Check the available depths and number of data points for each depth
+depth_summary <- maria_data |>
+  group_by(NOMINAL_DEPTH) |>
+  summarise(count = n(), .groups = 'drop') |>
+  arrange(NOMINAL_DEPTH)
+
+## Print a nice formatted table
+kbl(depth_summary) |> 
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+
+```
+
+Now we can plot the temperature and salinity time series for each depth. We will use `facet_wrap()` to create separate plots for each depth.
+
+Temperature time series: 
+
+```{r}
+# Plot temperature time series for each depth
+ggplot(maria_data, aes(x = TIME, y = TEMP)) +
+  geom_line() +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Maria Island Mooring: Temperature Time Series",
+       x = "",
+       y = "Temperature (°C)") +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+Salinity time series:
+
+```{r, warning=FALSE,message=FALSE}
+# Plot salinity time series for each depth
+ggplot(maria_data, aes(x = TIME, y = PSAL)) +
+  geom_line() +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Maria Island Mooring: Salinity Time Series",
+       x = "",
+       y = "Salinity (PSU)") +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+
+## Monthly climatology
+
+We can also calculate the monthly climatology for temperature and salinity. We will use `lubridate` to extract the month from the `TIME` variable and then calculate the mean for each month.
+
+```{r}
+# Extract month from TIME and calculate monthly climatology
+# Remove DEPTH == 25 as it only has few months
+monthly_climatology <- maria_data |>
+  filter(NOMINAL_DEPTH != 25) |>
+  mutate(month = month(TIME)) |>
+  group_by(month, NOMINAL_DEPTH) |>
+  summarise(TEMPmean = mean(TEMP, na.rm = TRUE),
+            TEMPmin = min(TEMP, na.rm = TRUE),
+            TEMPmax = max(TEMP, na.rm = TRUE),
+            TEMP95 = quantile(TEMP, 0.95, na.rm = TRUE),
+            TEMP05 = quantile(TEMP, 0.05, na.rm = TRUE),
+            PSALmean = mean(PSAL, na.rm = TRUE),
+            PSALmin = min(PSAL, na.rm = TRUE),
+            PSALmax = max(PSAL, na.rm = TRUE),
+            PSAL95 = quantile(PSAL, 0.95, na.rm = TRUE),
+            PSAL05 = quantile(PSAL, 0.05, na.rm = TRUE),
+            .groups = 'drop') |> 
+  arrange(NOMINAL_DEPTH, month)
+
+# Print the monthly climatology using kable. Group rows by NOMINAL_DEPTH
+kbl(monthly_climatology[,c(1, 3:12)], col.names = c("Month", rep(c("Mean", "Min", "Max", "p0.95", "p0.05"), 2)), digits = 4) |> 
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover")) |> 
+  add_header_above(c(" " = 1, "Temperature (°C)" = 5, "Salinity (PSU)" = 5)) |>
+  pack_rows(index = c("20m" = 12, "85m" = 12, "90m" = 12 ))
+  
+
+```
+## Monthly climatology plots
+
+We can plot the monthly climatology for temperature and salinity as separate plots for each depth. The bands represent the 0.95 and 0.05 quantiles values for each month.
+
+```{r}
+# Plot monthly climatology for temperature
+ggplot(monthly_climatology, aes(x = month, y = TEMPmean, group = NOMINAL_DEPTH)) +
+  geom_line(aes(color = as.factor(NOMINAL_DEPTH))) +
+  geom_point(colour="black") +
+  geom_ribbon(aes(ymin = TEMP05, ymax = TEMP95, fill = as.factor(NOMINAL_DEPTH)), alpha = 0.2) +
+  labs(title = "Maria Island Mooring: Monthly Climatology of Temperature",
+       x = "Month",
+       y = "Temperature (°C)",
+       color = "Depth (m)",
+       fill = "Depth (m)") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+# Plot monthly climatology for salinity
+ggplot(monthly_climatology, aes(x = month, y = PSALmean, group = NOMINAL_DEPTH)) +
+  geom_line(aes(color = as.factor(NOMINAL_DEPTH))) +
+  geom_ribbon(aes(ymin = PSAL05, ymax = PSAL95, fill = as.factor(NOMINAL_DEPTH)), alpha = 0.2) +
+  geom_point(colour="black") +
+  labs(title = "Maria Island Mooring: Monthly Climatology of Salinity",
+       x = "Month",
+       y = "Salinity (PSU)",
+       color = "Depth (m)",
+       fill = "Depth (m)") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+
+## Monthly temprature and salinity annomalies
+
+We can calculate the monthly anomalies for temperature and salinity by subtracting the monthly climatology from the actual values. We will use the `left_join()` function to join the monthly climatology with the original data. Plot the last five years of data.
+
+```{r}
+# Join the monthly climatology with the original data
+maria_anomalies <- maria_data |>
+  filter(NOMINAL_DEPTH != 25) |>
+  mutate(month = month(TIME)) |>
+  left_join(monthly_climatology, by = c("month", "NOMINAL_DEPTH")) |>
+  mutate(TEMP_anomaly = TEMP - TEMPmean,
+         PSAL_anomaly = PSAL - PSALmean) |>
+  select(TIME, NOMINAL_DEPTH, TEMP_anomaly, PSAL_anomaly)
+
+## add a colour column to the anomalies data frame with red for positive anomalies and blue for negative anomalies
+maria_anomalies <- maria_anomalies |>
+  mutate(TEMP_color = ifelse(TEMP_anomaly > 0, "red", "blue"),
+         PSAL_color = ifelse(PSAL_anomaly > 0, "red", "blue"))
+
+
+# Plot the temperature anomalies. Plot positive anomalies in red and negative in blue
+ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = TEMP_anomaly)) +
+  geom_line(aes(color = TEMP_color)) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Maria Island Mooring: Temperature Anomalies",
+       x = "",
+       y = "Temperature Anomaly (°C)") +
+  scale_color_manual(values = c("red" = "red", "blue" = "blue")) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+
+
+# Plot the salinity anomalies. Plot positive anomalies in red and negative in blue
+ggplot(maria_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = PSAL_anomaly)) +
+  geom_line(aes(color = PSAL_color)) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Maria Island Mooring: Salinity Anomalies",
+       x = "",
+       y = "Salinity Anomaly (PSU)") +
+  scale_color_manual(values = c("red" = "red", "blue" = "blue")) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+```
+
+
+## Conclusion
+
+In this notebook, we have extracted and plotted the temperature and salinity time series from the Maria Island mooring using the AODN cloud-optimised ANMR hourly product. We have also calculated the monthly climatology and anomalies for temperature and salinity. The plots show the variations in temperature and salinity over time, as well as the monthly climatology and anomalies for each depth.
+
+
