@@ -115,7 +115,7 @@ kbl(depth_summary) |>
 
 ```
 
-Now we can plot the temperature and salinity time series for each depth. We will use `facet_wrap()` to create separate plots for each depth.
+Now we can plot the temperature and salinity time series for each depth. We will create separate plots for each depth.
 
 Temperature time series: 
 
@@ -130,7 +130,9 @@ ggplot(maria_data, aes(x = TIME, y = TEMP)) +
   theme_clean() +
   theme(legend.position = "none")
 ```
-Salinity time series:
+
+Salinity time series:  
+
 
 ```{r, warning=FALSE,message=FALSE}
 # Plot salinity time series for each depth
@@ -146,7 +148,7 @@ ggplot(maria_data, aes(x = TIME, y = PSAL)) +
 
 ## Monthly climatology
 
-We can also calculate the monthly climatology for temperature and salinity. We will use `lubridate` to extract the month from the `TIME` variable and then calculate the mean for each month.
+We can also calculate the monthly climatology for temperature and salinity. We will use `lubridate` to extract the month from the `TIME` variable and then calculate the mean for each month. We will remove the depth of 25m as it only has a few months of data, which may skew the results. We will calculate the mean, min, max, and 0.95 and 0.05 quantiles for each month and depth.
 
 ```{r}
 # Extract month from TIME and calculate monthly climatology
