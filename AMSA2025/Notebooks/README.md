@@ -23,7 +23,7 @@ The AODN cloud-optimised (CO) product is a collection of datasets that are store
 AODN has created a dedicated Python library to facilitate the access to these datasets, which is available at [AODN CO Python library](https://github.com/aodn/aodn_cloud_optimised), including an extensive collection of example notebooks to help users get started with the AODN CO products. Also, the library includes a set of functions to connect to the datasets, extract data based on spatial and temporal conditions, and create summary tables, figures, and maps.
 
 
-[Table of contents](#table-of-contents)
+
 
 ## Discovering datasets in AODN CO products
 
@@ -39,7 +39,7 @@ For example, you can find the "Moorings Hourly time-series product" dataset, whi
 
 For example, the S3 URL address for the "Moorings Hourly time-series product" dataset is `s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/`. 
 
-[Table of contents](#table-of-contents)
+
 
 ## Code snippets
 
@@ -112,14 +112,14 @@ ds_subset <- ds |>
   filter(TIME >= "2019-01-01" & time <= "2019-12-31") |> 
   # We could even select only the columns we need
   # We will assume that the dataset also has a column called 'site_code' and we want to select it
-  select(LONGITUDE, LATITUDE, TIME, site_code, TEMP, PSAL)
+  select(LONGITUDE, LATITUDE, TIME, DEPTH, site_code, TEMP, PSAL)
 
 # We can now load the data into memory
 ds_subset <- ds_subset |> 
   collect()
 ```
 
-Note that these are common `dplyr` verbs, but they are actually excecuted by `arrow` (not all `dplyr` verbs are available in `arrow`, see (here)[https://arrow.apache.org/docs/r/reference/acero.html]). You don't get any data until you add the `collect()` verb at the end.   
+Note that these are common `dplyr` verbs, but they are actually executed by `arrow` (not all `dplyr` verbs are available in `arrow`, see [here](https://arrow.apache.org/docs/r/reference/acero.html). You don't get any data until you add the `collect()` verb at the end.   
 
 You can change the values of the conditions above to extract data that is relevant for your needs. Other conditions may include extracting data based on a specific site, a specific depth range, or even a specific variable.
 
@@ -197,5 +197,5 @@ coral_ds = xr.open_dataset(s3fs.S3Map(root = url, s3 = s3_bucket), engine = 'zar
 
 </details>
 
-[Table of contents](#table-of-contents)
+
  
