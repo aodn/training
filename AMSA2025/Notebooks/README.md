@@ -49,7 +49,6 @@ In this section, we are including code snippets that will help you get started w
 
 To run this code in `R` or `Python`, you will need to have the S3 URL address for the dataset of your interest. For this example, we are using the *Moorings Hourly time-series product* dataset, but you can simply replace the S3 URL address with the one for the dataset you want to access.
 
-You can get this URL following the instructions in the [Searching for datasets via STAC](#searching-for-datasets-via-stac) section above.
 
 <details>
 
