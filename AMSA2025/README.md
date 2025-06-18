@@ -33,3 +33,6 @@ Ben Stepin
 Eduardo Klein  
 
 
+## Important
+
+It is indispensable that you set up your computer with the required software before the workshop. Please follow the instruction in the [pre-event instructions document](Pre-Event_Instructions.md).
