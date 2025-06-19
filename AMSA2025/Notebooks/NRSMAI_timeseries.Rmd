@@ -67,22 +67,34 @@ Let's make a map showing the locations of the moorings. Red markers indicate the
 ```{r}
 # Load the mooring locations
 mooring_locations <- read.csv("ANMNlocations.csv", stringsAsFactors = FALSE)
-mooring_locations$NRScolour <- ifelse(mooring_locations$NRS == FALSE, "blue", "red")
-mooring_locations$NRSsize <- ifelse(mooring_locations$NRS == FALSE, 5, 10)
+mooring_locations$NRSsize <- ifelse(mooring_locations$NRS == FALSE, 7, 12)
+mooring_locations$NRScolour <- ifelse(mooring_locations$Active == TRUE, "#5e3c99", "#b2abd2")
+mooring_locations$NRScolour <- ifelse(mooring_locations$NRS == TRUE, "#e66101", mooring_locations$NRScolour)
 
 ## Map the mooring locations using leaflet. Color the markers by NRS field
-leaflet(mooring_locations) |>
+m <- leaflet(mooring_locations) |>
   addTiles() |>
   addCircleMarkers(lng = ~lon, lat = ~lat,
                    radius = ~NRSsize, 
-                   color = ~NRScolour,
                    fillColor = ~NRScolour, 
-                   fillOpacity = 0.5, 
-                   stroke = FALSE,
-                   label = ~paste("Mooring:", site_code, "\n", yearMin, " - ", yearMax),
-                   labelOptions = labelOptions(noHide = FALSE, direction = "top"))
+                   fillOpacity = 0.8, 
+                   stroke = TRUE,
+                   weight = 1.5,
+                   color = "black",
+                   label = ~paste("Mooring:", site_code, " ", yearMin, " - ", yearMax),
+                   labelOptions = labelOptions(noHide = FALSE, direction = "top")) |> 
+  ## add legend
+  addLegend("bottomleft", 
+            colors = c("#e66101", "#5e3c99", "#b2abd2"), 
+            labels = c("National Reference Station", "Active Mooring", "Inactive Mooring"),
+            title = "Mooring Type",
+            opacity = 0.7) 
 
+m
 
+## save widget
+#library(htmlwidgets)
+#saveWidget(m, "mooring_locations.html", selfcontained = TRUE)
 
 ```
 
