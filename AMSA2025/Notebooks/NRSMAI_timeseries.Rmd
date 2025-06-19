@@ -81,7 +81,7 @@ m <- leaflet(mooring_locations) |>
                    stroke = TRUE,
                    weight = 1.5,
                    color = "black",
-                   label = ~paste("Mooring:", site_code, " ", yearMin, " - ", yearMax),
+                   label = ~paste(site_name, "-", site_code, " ", yearMin, " - ", yearMax),
                    labelOptions = labelOptions(noHide = FALSE, direction = "top")) |> 
   ## add legend
   addLegend("bottomleft", 
@@ -94,7 +94,7 @@ m
 
 ## save widget
 #library(htmlwidgets)
-#saveWidget(m, "mooring_locations.html", selfcontained = TRUE)
+#saveWidget(m, "mooring_locations.html", selfcontained = TRUE, title = "IMOS Mooring Locations")
 
 ```
 
