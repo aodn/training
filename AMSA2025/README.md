@@ -13,10 +13,10 @@
 | 09:15 | IMOS program overview                                                                     | Fabrice Jaine      |
 | 09:45 | How reliable are IMOS Data? (IMOS practices documentation, AODN certs, acknowledgement)   | Rebecca Zitoun     |
 | 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Mark Rehbein, Vicky Issac, Bene Pasquer |
-| 10:30 | MORNING TEA                                                                               |                    |
+| 10:45 | MORNING TEA                                                                               |                    |
 | 11:00 | IMOS OceanCurrent                                                                         | Gabriela Pilo TBC  |
 | 11:30 | IMOS Biological Ocean Observer                                                            | Claire Davies TBC  |
-| 12:30 | New IMOS cloud optimized datasets                                                         | Eduardo Klein      |
+| 12:30 | Introducing IMOS cloud optimised datasets                                                 | Eduardo Klein      |
 | 13:00 | LUNCH                                                                                     |                    |
 | 13:45 | Guided tutorial: Using IMOS data in R (netcdf, cloud optimised, remora)                   | Denisse Fiero      |
 | 15:15 | AFTERNOON TEA                                                                             |                    |
@@ -35,4 +35,5 @@ Eduardo Klein
 
 ## Important
 
-It is indispensable that you set up your computer with the required software before the workshop. Please follow the instructions in the [pre-event instructions document](Pre-Event_Instructions.md).
+It is indispensable that you set up your computer with the required software before the workshop. 
+Please follow the instructions in the [pre-event instructions document](Pre-Event_Instructions.md).
