@@ -17,6 +17,7 @@ To make the most out of this work, we recommend that you follow the instructions
 -   [ ] Download/clone example notebooks
 -   [ ] Install `Python` packages
 -   [ ] Install `R` packages
+-   [ ] Install `QGIS` and plugins
 
 # **1. Installation instructions**
 
@@ -177,3 +178,7 @@ checking_libraries()
 ```
 
 This will start the process of checking all packages are installed in your machine and install any missing packages.
+
+# 6. Installing QGIS and plugins
+
+<TO BE COMPLETED>
