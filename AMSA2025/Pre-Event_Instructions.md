@@ -181,4 +181,6 @@ This will start the process of checking all packages are installed in your machi
 
 # 6. Installing QGIS and plugins
 
-<TO BE COMPLETED>
+1. Visit https://qgis.org/resources/installation-guide/ for installing the latest version of QGIS.
+2. If wanting to follow allong, we will be using Przren 3.34.3
+3. We will be using a plugin called "THREDDS Explorer". Visit the git hub and follow the instructions for installing (Currently only works on Windows machines). Navigate to https://github.com/IHCantabria/THREDDSExplorer?tab=readme-ov-file#installation
