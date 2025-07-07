@@ -25,9 +25,12 @@
 
 
 ## Facilitators  
-Fabrice Jaines  
-Rebeca Zitoun  
+Fabrice Jaine  
+Rebeca Zitoun 
+Claire Davies  
+Gabriela Semolini-Pilo  
 Benedicte Pasquer  
+Vicky Isaac  
 Ben Stepin  
 [Denisse Fierro Arcos](https://github.com/lidefi87/)  
 Eduardo Klein  
