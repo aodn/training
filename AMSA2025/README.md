@@ -27,7 +27,7 @@
 ## Facilitators  
 Fabrice Jaine  
 Rebeca Zitoun 
-Claire Davies  
+Claire Davies    
 Gabriela Semolini-Pilo  
 Benedicte Pasquer  
 Vicky Isaac  
