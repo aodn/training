@@ -17,6 +17,7 @@ To make the most out of this work, we recommend that you follow the instructions
 -   [ ] Download/clone example notebooks
 -   [ ] Install `Python` packages
 -   [ ] Install `R` packages
+-   [ ] Install IMOS-related `R` packages
 -   [ ] Install `QGIS` and plugins
 
 # **1. Installation instructions**
@@ -179,11 +180,62 @@ checking_libraries()
 
 This will start the process of checking all packages are installed in your machine and install any missing packages.
 
-# 6. Installing QGIS and plugins
+# 6. Install IMOS-related `R` packages
 
-1. Visit [qgis.org](https://qgis.org/resources/installation-guide/) for installing the latest version of QGIS.
-2. If wanting to follow allong, we will be using Przren 3.34.3
-3. We will be using a plugin called "THREDDS Explorer". Visit [IHCantabria's GitHub](https://github.com/IHCantabria/THREDDSExplorer?tab=readme-ov-file#installation) and follow the instructions for installing (Currently only works on Windows machines).
-4. Once installed, add a new server to the THREDDS Explorer pointing to "https://thredds.aodn.org.au/thredds/"
-5. Install the "Point Sampling Tool" plugin, available through the plugin browser in QGIS
-   
+There are two `R` packages that allows to interact with IMOS data.
+
+## 6.1 Animal Tracking `remora` package
+
+[`remora`](https://github.com/IMOS-AnimalTracking/remora)  is an R package enabling the integration of animal acoustic telemetry data with oceanographic observations collected by ocean observing programs. It includes functions for:
+
+-   Interactively exploring animal movements in space and time from acoustic telemetry data  
+-   Performing robust quality-control of acoustic telemetry data as described in Hoenner et al. 2018  
+-   Identifying available satellite-derived and sub-surface in situ oceanographic datasets coincident and collocated with the animal movement data, based on regional Ocean Observing Systems  
+-   Extracting and appending these environmental data to animal movement data  
+
+Whilst the functions in `remora` were primarily developed to work with acoustic telemetry data, the environmental data extraction and integration functionalities will
+work with other spatio-temporal ecological datasets (eg. satellite telemetry, species sightings records, fisheries catch records).
+
+To install `remora`
+
+remora requires R version >= 3.6.0
+
+You will need the `remotes` package to install `remora`:
+
+```  
+install.packages("remotes")
+library("remotes")     
+```  
+
+The latest stable version of remora can be installed from GitHub:
+
+```  
+remotes::install_github('IMOS-AnimalTracking/remora', build_vignettes = TRUE, dependencies = TRUE)
+```   
+
+
+
+## 6.2 Biological Ocean Observer `planktonr` package  
+
+[`planktonr`](https://github.com/PlanktonTeam/planktonr) is an `R` package that facilitates the download, analysis and visualisation of phytoplankton and zooplankton data. 
+Our initial focus will be on plankton data stored on the Australian Ocean Data Network (AODN) and collected by the Integrated Marine Observing System (IMOS), 
+but we hope to expand to other plankton data sets in the future.
+
+Be aware that this package is in the very early stages of development. Functions and documentation are not complete so installing at the moment is at your own risk. 
+If you are still interested, you can install the development version from GitHub with:
+
+```  
+# install.packages("devtools")
+devtools::install_github("PlanktonTeam/planktonr")
+```  
+
+Thanks to the team at the Integration and Application Network (ian.umces.edu/media-library) for the plankton symbols used in the `planktonr` hex sticker.
+
+
+# 7. Installing QGIS and plugins
+
+1.  Visit [qgis.org](https://qgis.org/resources/installation-guide/) for installing the latest version of QGIS.
+2.  If wanting to follow allong, we will be using Przren 3.34.3
+3.  We will be using a plugin called "THREDDS Explorer". Visit [IHCantabria's GitHub](https://github.com/IHCantabria/THREDDSExplorer?tab=readme-ov-file#installation) and follow the instructions for installing (Currently only works on Windows machines).
+4.  Once installed, add a new server to the THREDDS Explorer pointing to "<https://thredds.aodn.org.au/thredds/>"
+5.  Install the "Point Sampling Tool" plugin, available through the plugin browser in QGIS
