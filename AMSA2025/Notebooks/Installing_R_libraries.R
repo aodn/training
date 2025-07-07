@@ -8,8 +8,7 @@
 checking_libraries <- function(){
   #List of packages needed to run all notebooks in repository
   packages_required <- c("arrow", "tidyverse", "sf", "rnaturalearth", 
-                         "leaflet", "terra", "tidyterra", "thredds", "curl", 
-                         "remora", "ggthemes")
+                         "leaflet", "terra", "tidyterra", "thredds", "curl", "ggthemes")
   
   #Checking packages installed in local machine
   packages_local <- installed.packages()
