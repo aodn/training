@@ -131,7 +131,7 @@ If you have `git` installed in your machine, follow these instructions.
 4.  Click on the two boxes to copy the link ending in *.git*. Alternatively, you can highlight the link and copy it.
 5.  Open Git Bash in your machine.
 6.  Navigate to the folder where you would like to clone the repository. You can use the `cd` command to do this. For example, if you would like to navigate to your documents, you could type: `cd /c/Users/your_user_name/Documents/` and press ENTER/RETURN.
-7.  Finally type: `git clone [https://github.com/aodn/rimrep-training.git](https://github.com/aodn/rimrep-training.git)` and press ENTER/RETURN. This will create an exact copy of our repository in your machine.
+7.  Finally type: `git clone [https://github.com/aodn/training.git](https://github.com/aodn/training.git)` and press ENTER/RETURN. This will create an exact copy of our repository in your machine.
 
 ### 3.1.2 **Downloading a repository**
 
@@ -148,9 +148,9 @@ We will use the *requirements.txt* file available under the *Python_based_script
 
 To do this, you will need to open either the Anaconda Prompt (Windows) or the Terminal (MacOS, Linux). You will see a black screen with the path to the folder where you currently are.
 
-You will now need to change the directory to the folder where you saved the repository files you downloaded in the previous step. Assuming you cloned or unzipped the example folder in your Documents, the path should look something like this **C:/Users/username/Documents/rimrep-training**. Note that ***username*** will need to be replaced by the username shown in your computer. We will use this path when changing the directory.
+You will now need to change the directory to the folder where you saved the repository files you downloaded in the previous step. Assuming you cloned or unzipped the example folder in your Documents, the path should look something like this **C:/Users/username/Documents/training**. Note that ***username*** will need to be replaced by the username shown in your computer. We will use this path when changing the directory.
 
-Back in the *Anaconda Prompt* type: **cd C:/Users/username/Documents/rimrep-training/Python_based_scripts**. The command **cd** stands for changing directory. The path shown in the Anaconda should be the same that you included next to the **cd** command. You can check the contents of the folder by typing **dir**. Here, you should see the *requirements.txt* file.
+Back in the *Anaconda Prompt* type: **cd C:/Users/username/Documents/training/Python_based_scripts**. The command **cd** stands for changing directory. The path shown in the Anaconda should be the same that you included next to the **cd** command. You can check the contents of the folder by typing **dir**. Here, you should see the *requirements.txt* file.
 
 If you can see the *requirements.txt* file, type the following line in the *Anaconda prompt* or *Terminal:*
 
@@ -158,7 +158,7 @@ If you can see the *requirements.txt* file, type the following line in the *Anac
 conda env create -f requirements.txt -n aodn
 ```
 
-**Note**: If you are not in the directory where the `requirements.txt` file is located, the code above will not work. You will need to specify the path to the file. For example, if your terminal window is in the `rimrep-examples` folder, you will need to specify the full path to the file as follows: `conda env create -f Python_based_Scripts/requirements.txt -n rimrep`
+**Note**: If you are not in the directory where the `requirements.txt` file is located, the code above will not work. You will need to specify the path to the file. For example, if your terminal window is in the `Notebooks` folder, you will need to specify the full path to the file as follows: `conda env create -f Python_based_Scripts/requirements.txt -n training`
 
 You can check that everything was successfully installed by typing the following command:
 
