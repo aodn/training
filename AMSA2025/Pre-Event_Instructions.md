@@ -186,7 +186,7 @@ There are two `R` packages that allows to interact with IMOS data.
 
 ## 6.1 Animal Tracking `remora` package
 
-`remora` is an [R package](https://github.com/IMOS-AnimalTracking/remora) enabling the integration of animal acoustic telemetry data with oceanographic observations collected by ocean observing programs. It includes functions for:
+[`remora`](https://github.com/IMOS-AnimalTracking/remora)  is an R package enabling the integration of animal acoustic telemetry data with oceanographic observations collected by ocean observing programs. It includes functions for:
 
 -   Interactively exploring animal movements in space and time from acoustic telemetry data  
 -   Performing robust quality-control of acoustic telemetry data as described in Hoenner et al. 2018  
@@ -217,7 +217,7 @@ remotes::install_github('IMOS-AnimalTracking/remora', build_vignettes = TRUE, de
 
 ## 6.2 Biological Ocean Observer `planktonr` package  
 
-`planktonr` is an `R` package that facilitates the download, analysis and visualisation of phytoplankton and zooplankton data. 
+[`planktonr`](https://github.com/PlanktonTeam/planktonr) is an `R` package that facilitates the download, analysis and visualisation of phytoplankton and zooplankton data. 
 Our initial focus will be on plankton data stored on the Australian Ocean Data Network (AODN) and collected by the Integrated Marine Observing System (IMOS), 
 but we hope to expand to other plankton data sets in the future.
 
