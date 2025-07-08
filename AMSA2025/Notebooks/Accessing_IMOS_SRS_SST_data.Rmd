@@ -8,6 +8,11 @@ output:
     html_preview: true
 ---
 
+```{r, echo = F}
+knitr::opts_chunk$set(fig.path = "figures/") 
+```
+
+
 # Introduction
 
 In this notebook, we will explore how to access and visualize the IMOS SRS Sea Surface Temperature (SST) data using R. We will also show how to extract SST data using a point of interest. 
