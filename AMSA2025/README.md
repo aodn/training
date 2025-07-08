@@ -18,7 +18,7 @@
 | 11:30 | IMOS Biological Ocean Observer                                                            | Claire Davies TBC  |
 | 12:30 | Introducing IMOS cloud optimised datasets                                                 | Eduardo Klein      |
 | 13:00 | LUNCH                                                                                     |                    |
-| 13:45 | Guided tutorial: Using IMOS data in R (netcdf, cloud optimised, remora)                   | Denisse Fiero      |
+| 13:45 | Guided tutorial: Using IMOS data in R (netcdf, cloud optimised, remora)                   | Denisse Fierro Arcos |
 | 15:15 | AFTERNOON TEA                                                                             |                    |
 | 15:45 | Guided tutorial: Using IMOS data in QGIS (spatial analyses, point extraction)             | Benjamin Stepin    |
 | 16:30 | WORKSHOP CLOSE                                                                            | Fabrice Jaine      |

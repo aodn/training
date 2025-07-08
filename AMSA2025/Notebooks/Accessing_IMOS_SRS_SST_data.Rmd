@@ -1,0 +1,247 @@
+---
+title: "IMOS_SRS_SST"
+author: "Denisse Fierro Arcos"
+date: "2025-07-08"
+output: 
+  github_document:
+    toc: true
+    html_preview: true
+---
+
+# Introduction
+
+In this notebook, we will explore how to access and visualize the IMOS SRS Sea Surface Temperature (SST) data using R. We will also show how to extract SST data using a point of interest. 
+
+This SST data product is available through the IMOS THREDDS Data Server and it provides the skin sea surface temperature which was measured using infra-red radiometers on various satellites. The data is composited over multiple swaths/scenes and gridded over a 0.02 degree rectangular grid over Australia. For more information, see http://www.ghrsst.org
+
+# Loading required libraries
+  
+```{r libraries, results = "hide", message = F, warning = F}
+#Connection to THREDDS
+library(thredds)
+#Downloading data
+library(curl)
+#Data manipulation
+library(dplyr)
+library(stringr)
+library(purrr)
+#Spatial data
+library(sf)
+#Gridded data
+library(terra)
+#Plotting
+library(ggplot2)
+library(tidyterra)
+#Base map
+library(rnaturalearth)
+```
+
+# Connecting to IMOS THREDDS server
+The IMOS THREDDS server can be accessed using the `thredds` package in R. It is also possible to explore the catalog to find the dataset we are interested in, which we show below, but we recommend using the web browser for easier navigation. 
+  
+```{r connect_thredds}
+# We define the URL of the IMOS THREDDS catalog
+imos_cat_url <- "https://thredds.aodn.org.au/thredds/catalog/IMOS/catalog.xml"
+# We create a CatalogNode object to connect to the IMOS THREDDS catalog
+imos_cat <- CatalogNode$new(imos_cat_url, prefix = "thredds")
+```
+
+## Exploring the IMOS THREDDS catalog
+We can open the catalog in the web browser to explore the datasets available as follows:
+  
+```{r}
+imos_cat$browse()
+```
+  
+Once in the browser, you can change the extension of the catalog URL from `catalog.xml` to `catalog.html`. This way you can explore the catalog in a more user-friendly format.  
+  
+As mentioned previously, we can also explore the catalog programmatically, but this is more time-consuming. We will check the SST datasets inside the SRS catalog:
+  
+```{r}
+# Listing datasets in the catalog
+imos_cat$get_catalogs()
+```
+  
+We can see there are a number of datasets available in the IMOS catalog. We are interested in the `SRS` products, so we can check the datasets available in the `SRS` catalog:
+  
+```{r}
+imos_cat$get_catalogs()[["SRS"]]
+```
+  
+We can see that the `SRS` catalog contains the `SST` dataset we are interested in. There are multiple datasets available inside `SST`, but below we show you the path to the `ghrsst` dataset, which contains the Sea Surface Temperature data we want to access:
+
+```{r}
+imos_cat$get_catalogs()[["SRS"]]$get_catalogs()[["SST"]]$
+  get_catalogs()[["ghrsst"]]$get_catalogs()[["L3SM-1d"]]$
+  get_catalogs()[["day"]]$get_catalogs()[["2025"]]
+```
+  
+We can see that there are 163 files available in the `2025` folder, which contains the SST data for that year. We also get a URL that will allow us to explore the catalog further. We will use this URL to download the SST data for the first week of 2025.
+
+```{r}
+# First we connect to the catalog
+srs_cat <- CatalogNode$new(paste0("https://thredds.aodn.org.au/thredds/catalog",
+                                  "/IMOS/SRS/SST/ghrsst/L3SM-1d/day/2025/", 
+                                  "catalog.xml"),
+                           prefix = "thredds")
+
+# Now we can get the dataset names available in the catalog
+sst_jan_names <- srs_cat$get_dataset_names() |>
+  str_subset("2025010[1-7]")
+
+# Checking we have selected the correct datasets
+sst_jan_names
+```
+  
+We have seven datasets available for the first week of January 2025, which is exactly what we wanted. Once again, this method to explore the catalog is more time-consuming, so unless you're familiar with the structure of the catalog, we highlight recommend you use the web browser instead.
+  
+We now need a complete URL to download the SST data as shown below.
+
+```{r}
+# Get base url for HTTPserver access
+http_base <- srs_cat$list_services()$http[["base"]]
+
+# Put together full url to download selected files
+sst_jan_urls <- sst_jan_names |> 
+  map_chr(\(x) paste0("https://thredds.aodn.org.au", http_base,
+                      srs_cat$get_datasets()[[x]]$get_url()))
+
+# Checking results
+sst_jan_urls
+```
+  
+We are now ready to download the data.  
+
+## Download SST data from IMOS THREDDS server
+  
+```{r, eval = FALSE}
+# We will ensure we have a directory to store the data
+if(!dir.exists("../data")){
+  dir.create("../data", recursive = T)
+}
+
+# We will download the SST data for the first week of January 2025
+# The file names will be named the same as in the catalog
+map2(sst_jan_urls, sst_jan_names, 
+     \(x, y) curl_download(x, file.path("../data/", y)))
+```
+  
+Data download may take a few minutes depending on your internet connection. Once the data is downloaded, we can load it into R for further analysis.
+  
+# Load SST data
+  
+```{r}
+# We can get a list of the downloaded files
+sst_jan_files <- list.files("../data", pattern = "GHRSST", full.names = T)
+
+# We can load the SST data using the terra package
+sst_jan_w1 <- rast(sst_jan_files)
+
+# Exploring SST data
+sst_jan_w1
+```
+  
+The dataset contains multiple variables, but we are interested in the `sea_surface_temperature` variable. We can subset the data to keep SST data only and then we will convert it from Kelvin to Celsius.
+
+You may also have noticed that there is no information about dates in the raster object. We can extract this information from the `source` attribute of the raster object.
+
+```{r}
+# Subsetting SST data
+sst_jan_w1 <- sst_jan_w1[[names(sst_jan_w1) == "sea_surface_temperature"]]
+
+# Getting dates from the source attribute
+date_sst_jan <- sources(sst_jan_w1) |> 
+  str_extract(pattern = "2025010[1-7]") |> 
+  as.Date(format = "%Y%m%d")
+
+# Adding dates as time and names to the raster object
+time(sst_jan_w1) <- date_sst_jan
+names(sst_jan_w1) <- date_sst_jan
+
+# Transforming from Kelvin to Celsius
+sst_jan_w1_celsius <- sst_jan_w1 - 273.15
+sst_jan_w1_celsius
+```
+  
+# Extracting SST data for points of interest
+We can extract SST data for specific points of interest using the `extract` function from the `terra` package. For example, we can extract SST data for a points in the east and west coast of Australia.
+
+```{r}
+# Defining points of interest
+points_of_interest <- data.frame(lon = c(153.4, 115.7),
+                                 lat = c(-19.5, -32))
+
+# Converting points to a spatial object
+points_sf <- points_of_interest |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Extracting SST data for points of interest
+sst_points <- extract(sst_jan_w1_celsius, points_sf, xy = T)
+
+# Checking extracted SST data
+sst_points
+```
+  
+We can reformat the extracted data to make it easier to read and visualize.
+  
+```{r}
+sst_points <- sst_points |> 
+  pivot_longer(cols = !c(ID, x, y), names_to = "date",
+               values_to = "sst_celsius")
+
+sst_points
+```
+  
+# Calculating mean SST for the first week of January 2025
+
+```{r}
+mean_sst_jan_w1 <- mean(sst_jan_w1_celsius, na.rm = TRUE)
+mean_sst_jan_w1
+```
+  
+# Plotting SST data
+We can create a simple plot of the mean SST using base R.
+
+```{r}
+plot(mean_sst_jan_w1)
+```
+  
+We can also create a more informative plot using `ggplot2` and `tidyterra` packages. We will use the `geom_spatraster` function to plot the raster data and add a base map of Australia using the `rnaturalearth` package.
+
+```{r}
+# Getting a base map of Australia
+aus <- ne_countries(country = "Australia", scale = "medium",
+                    returnclass = "sf")
+```
+
+Remember that when using `ggplot2`, we create a plot by stacking layers. This means we will need to add the raster data as the first layer and then add the base map as a second layer. We can also add points for the locations we extracted SST data from.  
+  
+```{r}
+ggplot()+
+  # Using tidyterra to plot the raster data
+  geom_spatraster(data = mean_sst_jan_w1) +
+  # Setting the color scale for the SST data
+  scale_fill_viridis_c(option = "C", name = "SST (°C)") +
+  # Adding base map of Australia
+  geom_sf(data = aus, fill = NA, color = "grey") +
+  # Adding points for the locations we extracted SST data from
+  geom_sf(data = points_sf, color = "darkgreen", size = 3) +
+  # Adding labels and theme
+  labs(title = "Mean Sea Surface Temperature (SST) for January 2025",
+       x = "Longitude", y = "Latitude") +
+  theme_bw()
+```
+  
+We can also make a plot comparing the mean SST for the first week of January 2025 at our two points of interest.
+
+```{r}
+sst_points |> 
+  ggplot(aes(x = date, y = sst_celsius, color = as.factor(ID))) +
+  geom_line(aes(group = ID)) +
+  geom_point() +
+  labs(title = "SST at Points of Interest for January 2025",
+       x = "Date", y = "SST (°C)", color = "Point ID") +
+  theme_bw()
+```
+
+
