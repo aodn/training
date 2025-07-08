@@ -6,6 +6,7 @@ output:
   github_document:
     toc: true
     html_preview: true
+always_allow_html: true
 ---
 
 ```{r, echo = F}
@@ -39,6 +40,8 @@ library(ggplot2)
 library(tidyterra)
 #Base map
 library(rnaturalearth)
+#Extracting data from IMOS
+library(remora)
 ```
 
 # Connecting to IMOS THREDDS server
@@ -174,14 +177,12 @@ We can extract SST data for specific points of interest using the `extract` func
 ```{r}
 # Defining points of interest
 points_of_interest <- data.frame(lon = c(153.4, 115.7),
-                                 lat = c(-19.5, -32))
-
-# Converting points to a spatial object
-points_sf <- points_of_interest |> 
+                                 lat = c(-19.5, -32)) |> 
+  # Converting points to a spatial object
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 # Extracting SST data for points of interest
-sst_points <- extract(sst_jan_w1_celsius, points_sf, xy = T)
+sst_points <- extract(sst_jan_w1_celsius, points_of_interest, xy = T)
 
 # Checking extracted SST data
 sst_points
@@ -195,6 +196,23 @@ sst_points <- sst_points |>
                values_to = "sst_celsius")
 
 sst_points
+```
+  
+# Extracting SST data with `remora`
+We can also use the `remora` package to extract SST data for our points of interest. This package provides a convenient way to access IMOS data for specific locations. More information about `remora` can be found in their website: https://imos-animaltracking.github.io/remora/.    
+  
+For this example, we will use the same points of interest defined above.  
+  
+```{r}
+# We can explore the environment variables available in the remora package
+imos_variables()
+```
+  
+We will use `rs_sst` which is the same product we accessed via the THREDDS server. Note that this step may take a few minutes to complete.
+  
+```{r, eval = F}
+remora_sst <- extractEnv(sst_points, X = "x", Y = "y", datetime = "date",
+                         env_var = "rs_sst")
 ```
   
 # Calculating mean SST for the first week of January 2025
@@ -230,7 +248,7 @@ ggplot()+
   # Adding base map of Australia
   geom_sf(data = aus, fill = NA, color = "grey") +
   # Adding points for the locations we extracted SST data from
-  geom_sf(data = points_sf, color = "darkgreen", size = 3) +
+  geom_sf(data = points_of_interest, color = "darkgreen", size = 3) +
   # Adding labels and theme
   labs(title = "Mean Sea Surface Temperature (SST) for January 2025",
        x = "Longitude", y = "Latitude") +

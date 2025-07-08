@@ -14,6 +14,7 @@ Denisse Fierro Arcos
 - [Load SST data](#load-sst-data)
 - [Extracting SST data for points of
   interest](#extracting-sst-data-for-points-of-interest)
+- [Extracting SST data with `remora`](#extracting-sst-data-with-remora)
 - [Calculating mean SST for the first week of January
   2025](#calculating-mean-sst-for-the-first-week-of-january-2025)
 - [Plotting SST data](#plotting-sst-data)
@@ -52,6 +53,8 @@ library(ggplot2)
 library(tidyterra)
 #Base map
 library(rnaturalearth)
+#Extracting data from IMOS
+library(remora)
 ```
 
 # Connecting to IMOS THREDDS server
@@ -260,7 +263,7 @@ imos_cat$get_catalogs()[["SRS"]]$get_catalogs()[["SST"]]$
     ##   url: https://thredds.aodn.org.au/thredds/catalog/IMOS/SRS/SST/ghrsst/L3SM-1d/day/2025/catalog.xml
     ##   services [4]: Compound OPENDAP HTTPServer WMS
     ##   catalogRefs [0]: none
-    ##   datasets [163]: 20250101032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc 20250102032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc ... 20250702032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc 20250703032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc
+    ##   datasets [164]: 20250101032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc 20250102032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc ... 20250703032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc 20250706032000-ABOM-L3S_GHRSST-SSTskin-MultiSensor-1d_day.nc
 
 We can see that there are 163 files available in the `2025` folder,
 which contains the SST data for that year. We also get a URL that will
@@ -353,7 +356,7 @@ sst_jan_w1
 ```
 
     ## class       : SpatRaster 
-    ## dimensions  : 4500, 6000, 112  (nrow, ncol, nlyr)
+    ## size        : 4500, 6000, 112  (nrow, ncol, nlyr)
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
@@ -400,16 +403,16 @@ sst_jan_w1_celsius
 ```
 
     ## class       : SpatRaster 
-    ## dimensions  : 4500, 6000, 7  (nrow, ncol, nlyr)
+    ## size        : 4500, 6000, 7  (nrow, ncol, nlyr)
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
-    ## source      : spat_62e81d4b43ac_25320_o8up7yuDdJ6XHBX.tif 
+    ## source      : spat_40b86aea740b_16568_o8up7yuDdJ6XHBX.tif 
     ## varname     : sea_surface_temperature (sea surface skin temperature) 
     ## names       : 2025-01-01, 2025-01-02, 2025-01-03, 2025-01-04, 2025-01-05, 2025-01-06, ... 
     ## min values  :  -3.111253,  -3.123773,  -3.439873,  -3.564982,  -3.099774,  -3.140474, ... 
     ## max values  :  42.158745,  39.066227,  40.410126,  44.685017,  43.490223,  46.409527, ... 
-    ## time (days) : 2025-01-01 to 2025-01-07 (2 steps)
+    ## time (days) : 2025-01-01 to 2025-01-07 (7 steps)
 
 # Extracting SST data for points of interest
 
@@ -420,14 +423,12 @@ SST data for a points in the east and west coast of Australia.
 ``` r
 # Defining points of interest
 points_of_interest <- data.frame(lon = c(153.4, 115.7),
-                                 lat = c(-19.5, -32))
-
-# Converting points to a spatial object
-points_sf <- points_of_interest |> 
+                                 lat = c(-19.5, -32)) |> 
+  # Converting points to a spatial object
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 # Extracting SST data for points of interest
-sst_points <- extract(sst_jan_w1_celsius, points_sf, xy = T)
+sst_points <- extract(sst_jan_w1_celsius, points_of_interest, xy = T)
 
 # Checking extracted SST data
 sst_points
@@ -469,24 +470,916 @@ sst_points
     ## 13     2  116. -32.0 2025-01-06        23.6
     ## 14     2  116. -32.0 2025-01-07        23.3
 
+# Extracting SST data with `remora`
+
+We can also use the `remora` package to extract SST data for our points
+of interest. This package provides a convenient way to access IMOS data
+for specific locations. More information about `remora` can be found in
+their website: <https://imos-animaltracking.github.io/remora/>.
+
+For this example, we will use the same points of interest defined above.
+
+``` r
+# We can explore the environment variables available in the remora package
+imos_variables()
+```
+
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;'>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+Variable
+</th>
+
+<th style="text-align:left;">
+
+Platform
+</th>
+
+<th style="text-align:left;">
+
+Temporal resolution
+</th>
+
+<th style="text-align:left;">
+
+Units
+</th>
+
+<th style="text-align:left;">
+
+Function to use
+</th>
+
+<th style="text-align:left;">
+
+Description
+</th>
+
+<th style="text-align:left;">
+
+Source
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;font-weight: bold;">
+
+bathy
+</td>
+
+<td style="text-align:left;">
+
+Composite raster product
+</td>
+
+<td style="text-align:left;">
+
+- </td>
+
+  <td style="text-align:left;">
+
+  meters
+  </td>
+
+  <td style="text-align:left;">
+
+  extractEnv()
+  </td>
+
+  <td style="text-align:left;width: 30em; ">
+
+  Australian Bathymetry and Topography Grid. 250 m resolution.
+  </td>
+
+  <td style="text-align:left;">
+
+  Geosciences Australia
+  </td>
+
+  </tr>
+
+  <tr>
+
+  <td style="text-align:left;font-weight: bold;">
+
+  dist_to_land
+  </td>
+
+  <td style="text-align:left;">
+
+  Raster product
+  </td>
+
+  <td style="text-align:left;">
+
+  - </td>
+
+    <td style="text-align:left;">
+
+    kilometers
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Distance from nearest shoreline (in km). Derived from the
+    high-resolution Open Street Map shoreline product.
+    </td>
+
+    <td style="text-align:left;">
+
+    This package
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_sst
+    </td>
+
+    <td style="text-align:left;">
+
+    Satellite-derived raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (2002-07-04 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    degrees Celcius
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    1-day multi-swath multi-sensor (L3S) remotely sensed sea surface
+    temperature (degrees Celcius) at 2 km resolution. Derived from the
+    Group for High Resolution Sea Surface Temperature (GHRSST)
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_sst_interpolated
+    </td>
+
+    <td style="text-align:left;">
+
+    Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (2006-06-12 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    degrees Celcius
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    1-day interpolated remotely sensed sea surface temperature (degrees
+    Celcius) at 9 km resolution. Derived from the Regional Australian
+    Multi-Sensor Sea surface temperature Analysis (RAMSSA, Beggs et
+    al. 2010) system as part of the BLUElink Ocean Forecasting Australia
+    project
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_chl
+    </td>
+
+    <td style="text-align:left;">
+
+    Satellite-derived raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (2002-07-04 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    mg.m-3
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Remotely sensed chlorophyll-a concentration (OC3 model). Derived
+    from the MODIS Aqua satellite mission. Multi-spectral measurements
+    are used to infer the concentration of chlorophyll-a, most typically
+    due to phytoplankton, present in the water (mg.m-3).
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_current
+    </td>
+
+    <td style="text-align:left;">
+
+    Composite raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1; degrees
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Gridded (adjusted) sea level anomaly (GSLA), surface geostrophic
+    velocity in the east-west (UCUR) and north-south (VCUR) directions
+    for the Australasian region derived from the IMOS Ocean Current
+    project. Two additional variables are calculated: surface current
+    velocity (ms-1) and bearing (degrees).
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_salinity
+    </td>
+
+    <td style="text-align:left;">
+
+    Satellite-derived raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    weekly (2011-08-25 - 2015-06-07)
+    </td>
+
+    <td style="text-align:left;">
+
+    psu
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    7-day composite remotely sensed salinity. Derived from the NASA
+    Aquarius satellite mission (psu).
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_turbidity
+    </td>
+
+    <td style="text-align:left;">
+
+    Satellite-derived raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (2002-07-04 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    m-1
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Diffuse attenuation coefficient at 490 nm (K490) indicates the
+    turbidity of the water column (m-1). The value of K490 represents
+    the rate which light at 490 nm is attenuated with depth. For example
+    a K490 of 0.1/meter means that light intensity will be reduced one
+    natural log within 10 meters of water. Thus, for a K490 of 0.1, one
+    attenuation length is 10 meters. Higher K490 value means smaller
+    attenuation depth, and lower clarity of ocean water.
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    rs_npp
+    </td>
+
+    <td style="text-align:left;">
+
+    Satellite-derived raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (2002-07-04 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    mgC.m_2.day-1
+    </td>
+
+    <td style="text-align:left;">
+
+    extractEnv()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Net primary productivity (OC3 model and Eppley-VGPM algorithm).
+    Modelled product used to compute an estimate of the Net Primary
+    Productivity (NPP). The model used is based on the standard
+    vertically generalised production model (VGPM). The VGPM is a
+    “chlorophyll-based” model that estimates net primary production from
+    chlorophyll using a temperature-dependent description of
+    chlorophyll-specific photosynthetic efficiency. For the VGPM, net
+    primary production is a function of chlorophyll, available light,
+    and the photosynthetic efficiency. The only difference between the
+    Standard VGPM and the Eppley-VGPM is the temperature-dependent
+    description of photosynthetic efficiencies, with the Eppley approach
+    using an exponential function to account for variation in
+    photosynthetic efficiencies due to photoacclimation.
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    moor_sea_temp
+    </td>
+
+    <td style="text-align:left;">
+
+    Fixed sub-surface moorings
+    </td>
+
+    <td style="text-align:left;">
+
+    hourly
+    </td>
+
+    <td style="text-align:left;">
+
+    degrees Celcius
+    </td>
+
+    <td style="text-align:left;">
+
+    extractMoor()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Depth-integrated in-situ, hourly time-series measurements of sea
+    temperature (degrees Celcius) at fixed mooring locations
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    moor_psal
+    </td>
+
+    <td style="text-align:left;">
+
+    Fixed sub-surface moorings
+    </td>
+
+    <td style="text-align:left;">
+
+    hourly
+    </td>
+
+    <td style="text-align:left;">
+
+    psu
+    </td>
+
+    <td style="text-align:left;">
+
+    extractMoor()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Depth-integrated in-situ, hourly time-series measurements of
+    salinity (psu) at fixed mooring locations
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    moor_ucur
+    </td>
+
+    <td style="text-align:left;">
+
+    Fixed sub-surface moorings
+    </td>
+
+    <td style="text-align:left;">
+
+    hourly
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1
+    </td>
+
+    <td style="text-align:left;">
+
+    extractMoor()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Depth-integrated in-situ, hourly time-series measurements of
+    subsurface geostrophic current velocity in the east-west direction
+    (ms-1) at fixed mooring locations
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    moor_vcur
+    </td>
+
+    <td style="text-align:left;">
+
+    Fixed sub-surface moorings
+    </td>
+
+    <td style="text-align:left;">
+
+    hourly
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1
+    </td>
+
+    <td style="text-align:left;">
+
+    extractMoor()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Depth-integrated in-situ, hourly time-series measurements of
+    subsurface geostrophic current velocity in the north-south direction
+    (ms-1) at fixed mooring locations
+    </td>
+
+    <td style="text-align:left;">
+
+    IMOS
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_temp
+    </td>
+
+    <td style="text-align:left;">
+
+    3D Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    degrees Celcius
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Water temperature at specified depth from the surface to 4,509-m
+    depth
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_salt
+    </td>
+
+    <td style="text-align:left;">
+
+    3D Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    psu
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Water salinity at specified depth from the surface to 4,509-m depth
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_cur
+    </td>
+
+    <td style="text-align:left;">
+
+    3D Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1; degrees clockwise
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Geostrophic velocity in the east-west (UCUR) and north-south (VCUR)
+    directions from the surface to 4,509-m depth. Two additional
+    variables are calculated: BRAN_spd = current velocity (ms-1) and
+    BRAN_dir = current bearing (degrees).
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_wcur
+    </td>
+
+    <td style="text-align:left;">
+
+    Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Vertical current speed in the water column is calculated (negative =
+    downwards; positive = upwards) using the layers available between
+    the surface to 200-m depths.
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_ssh
+    </td>
+
+    <td style="text-align:left;">
+
+    Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    meters
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Sea surface height at the water surface
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_mld
+    </td>
+
+    <td style="text-align:left;">
+
+    Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    meters
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Mixed layer depth in relation to the water surface
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    <tr>
+
+    <td style="text-align:left;font-weight: bold;">
+
+    BRAN_wind
+    </td>
+
+    <td style="text-align:left;">
+
+    Raster product
+    </td>
+
+    <td style="text-align:left;">
+
+    daily (1993-01-01 - present)
+    </td>
+
+    <td style="text-align:left;">
+
+    ms-1; degrees clockwise
+    </td>
+
+    <td style="text-align:left;">
+
+    extractBlue()
+    </td>
+
+    <td style="text-align:left;width: 30em; ">
+
+    Two variables are calculated, including BRAN_wind_spd = wind
+    velocity (ms-1) and BRAN_wind_dir = wind bearing (degrees).
+    </td>
+
+    <td style="text-align:left;">
+
+    Bluelink (CSIRO)
+    </td>
+
+    </tr>
+
+    </tbody>
+
+    </table>
+
+We will use `rs_sst` which is the same product we accessed via the
+THREDDS server. Note that this step may take a few minutes to complete.
+
+``` r
+remora_sst <- extractEnv(sst_points, X = "x", Y = "y", datetime = "date",
+                         env_var = "rs_sst")
+```
+
 # Calculating mean SST for the first week of January 2025
 
 ``` r
 mean_sst_jan_w1 <- mean(sst_jan_w1_celsius, na.rm = TRUE)
-```
-
-    ## |---------|---------|---------|---------|=========================================                                          
-
-``` r
 mean_sst_jan_w1
 ```
 
     ## class       : SpatRaster 
-    ## dimensions  : 4500, 6000, 1  (nrow, ncol, nlyr)
+    ## size        : 4500, 6000, 1  (nrow, ncol, nlyr)
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
-    ## source      : spat_62e83da1b5d_25320_zxzxx9jyyx6UnnI.tif 
+    ## source(s)   : memory
     ## name        :     mean 
     ## min value   : -3.14639 
     ## max value   : 40.50361
@@ -499,7 +1392,7 @@ We can create a simple plot of the mean SST using base R.
 plot(mean_sst_jan_w1)
 ```
 
-![](figures/unnamed-chunk-14-1.png)<!-- -->
+![](figures/unnamed-chunk-16-1.png)<!-- -->
 
 We can also create a more informative plot using `ggplot2` and
 `tidyterra` packages. We will use the `geom_spatraster` function to plot
@@ -526,7 +1419,7 @@ ggplot()+
   # Adding base map of Australia
   geom_sf(data = aus, fill = NA, color = "grey") +
   # Adding points for the locations we extracted SST data from
-  geom_sf(data = points_sf, color = "darkgreen", size = 3) +
+  geom_sf(data = points_of_interest, color = "darkgreen", size = 3) +
   # Adding labels and theme
   labs(title = "Mean Sea Surface Temperature (SST) for January 2025",
        x = "Longitude", y = "Latitude") +
@@ -535,7 +1428,7 @@ ggplot()+
 
     ## <SpatRaster> resampled to 500821 cells.
 
-![](figures/unnamed-chunk-16-1.png)<!-- -->
+![](figures/unnamed-chunk-18-1.png)<!-- -->
 
 We can also make a plot comparing the mean SST for the first week of
 January 2025 at our two points of interest.
@@ -553,7 +1446,7 @@ sst_points |>
     ## Warning: Removed 3 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](figures/unnamed-chunk-17-1.png)<!-- -->
+![](figures/unnamed-chunk-19-1.png)<!-- -->
 
 Finally, we can also create a multipanel plot to visualize the SST data
 for each day of the first week of January 2025 at our points of
@@ -573,7 +1466,7 @@ ggplot()+
 
     ## <SpatRaster> resampled to 500821 cells.
 
-![](figures/unnamed-chunk-18-1.png)<!-- -->
+![](figures/unnamed-chunk-20-1.png)<!-- -->
 
 Remember that you can save any plots as follows:
 
