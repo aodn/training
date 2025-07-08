@@ -17,6 +17,7 @@ Denisse Fierro Arcos
 - [Calculating mean SST for the first week of January
   2025](#calculating-mean-sst-for-the-first-week-of-january-2025)
 - [Plotting SST data](#plotting-sst-data)
+- [Conclusion](#conclusion)
 
 # Introduction
 
@@ -403,7 +404,7 @@ sst_jan_w1_celsius
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
-    ## source      : spat_19b414a97a53_6580_o8up7yuDdJ6XHBX.tif 
+    ## source      : spat_62e81d4b43ac_25320_o8up7yuDdJ6XHBX.tif 
     ## varname     : sea_surface_temperature (sea surface skin temperature) 
     ## names       : 2025-01-01, 2025-01-02, 2025-01-03, 2025-01-04, 2025-01-05, 2025-01-06, ... 
     ## min values  :  -3.111253,  -3.123773,  -3.439873,  -3.564982,  -3.099774,  -3.140474, ... 
@@ -485,7 +486,7 @@ mean_sst_jan_w1
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
-    ## source      : spat_19b461782ff1_6580_zxzxx9jyyx6UnnI.tif 
+    ## source      : spat_62e83da1b5d_25320_zxzxx9jyyx6UnnI.tif 
     ## name        :     mean 
     ## min value   : -3.14639 
     ## max value   : 40.50361
@@ -553,3 +554,40 @@ sst_points |>
     ## (`geom_point()`).
 
 ![](figures/unnamed-chunk-17-1.png)<!-- -->
+
+Finally, we can also create a multipanel plot to visualize the SST data
+for each day of the first week of January 2025 at our points of
+interest.
+
+``` r
+ggplot()+
+  geom_spatraster(data = sst_jan_w1_celsius)+
+  scale_fill_viridis_c(option = "C", name = "SST (°C)") +
+  geom_sf(data = aus, fill = "#fff2cc", color = "#fff2cc") +
+  facet_wrap(~lyr) +
+  theme_bw() +
+  labs(title = "Sea Surface Temperature (SST) for January 2025") +
+  theme(legend.position = "bottom", legend.title.position = "top", 
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+    ## <SpatRaster> resampled to 500821 cells.
+
+![](figures/unnamed-chunk-18-1.png)<!-- -->
+
+Remember that you can save any plots as follows:
+
+``` r
+ggsave("../outputs/sst_australia_jan2025.png", dpi = 300, 
+       bg = "white")
+```
+
+# Conclusion
+
+In this notebook, we have gone through the basics of how to access IMOS
+data available via the THREDDS server, specifically the Sea Surface
+Temperature (SST) data. We have shown how to download the data, load it
+into R, extract SST data for specific points of interest, and visualize
+the data using `ggplot2` and `tidyterra`. We have also shown how to
+calculate the mean SST for the first week of January 2025 and created
+multifaceted plots to visualise the data.

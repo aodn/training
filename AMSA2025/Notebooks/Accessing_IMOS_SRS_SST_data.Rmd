@@ -248,5 +248,29 @@ sst_points |>
        x = "Date", y = "SST (°C)", color = "Point ID") +
   theme_bw()
 ```
+  
+Finally, we can also create a multipanel plot to visualize the SST data for each day of the first week of January 2025 at our points of interest.
+  
+```{r}
+ggplot()+
+  geom_spatraster(data = sst_jan_w1_celsius)+
+  scale_fill_viridis_c(option = "C", name = "SST (°C)") +
+  geom_sf(data = aus, fill = "#fff2cc", color = "#fff2cc") +
+  facet_wrap(~lyr) +
+  theme_bw() +
+  labs(title = "Sea Surface Temperature (SST) for January 2025") +
+  theme(legend.position = "bottom", legend.title.position = "top", 
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+  
+Remember that you can save any plots as follows:
+  
+```{r, eval = FALSE}
+ggsave("../outputs/sst_australia_jan2025.png", dpi = 300, 
+       bg = "white")
+```
 
+# Conclusion
+In this notebook, we have gone through the basics of how to access IMOS data available via the THREDDS server, specifically the Sea Surface Temperature (SST) data. We have shown how to download the data, load it into R, extract SST data for specific points of interest, and visualize the data using `ggplot2` and `tidyterra`. We have also shown how to calculate the mean SST for the first week of January 2025 and created multifaceted plots to visualise the data.
 
+  
