@@ -172,12 +172,12 @@ sst_jan_w1_celsius
 ```
   
 # Extracting SST data for points of interest
-We can extract SST data for specific points of interest using the `extract` function from the `terra` package. For example, we can extract SST data for a points in the east and west coast of Australia.
+We can extract SST data for specific points of interest using the `extract` function from the `terra` package. For example, we can extract SST data for a points in the south and west coast of Australia.
 
 ```{r}
 # Defining points of interest
-points_of_interest <- data.frame(lon = c(153.4, 115.7),
-                                 lat = c(-19.5, -32)) |> 
+points_of_interest <- data.frame(lon = c(138, 115.7),
+                                 lat = c(-36.5, -19)) |> 
   # Converting points to a spatial object
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 

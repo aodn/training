@@ -235,7 +235,7 @@ DHD data.
 
 ``` r
 # Define bounding box for Western Australia
-bb_wa <- c(110, 120, -40, -10)
+bb_wa <- c(112, 119, -24, -18)
 
 # Cropping mean DHD data using the bounding box
 dhd_mean_wa <- crop(dhd_mean, bb_wa)
@@ -245,9 +245,9 @@ dhd_mean_wa
 ```
 
     ## class       : SpatRaster 
-    ## size        : 1500, 500, 1  (nrow, ncol, nlyr)
+    ## size        : 300, 350, 1  (nrow, ncol, nlyr)
     ## resolution  : 0.02, 0.02  (x, y)
-    ## extent      : 110, 120, -40, -10  (xmin, xmax, ymin, ymax)
+    ## extent      : 112, 119, -24, -18  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
     ## source(s)   : memory
     ## name        :     mean 
@@ -262,15 +262,20 @@ this cropped DHD data to create a map of mean DHD in Western Australia.
 ``` r
 # First we will get a map of Australia
 aus <- ne_countries(country = "Australia", scale = "medium",
-                    returnclass = "sf")
+                    returnclass = "sf") |> 
+  # Cropping map to match the extent of the DHD WA data
+  st_crop(dhd_mean_wa)
 ```
+
+    ## Warning: attribute variables are assumed to be spatially constant throughout
+    ## all geometries
 
 Now we have all components to create a map of mean DHD in Western
 Australia.
 
 ``` r
 ggplot()+
-  geom_spatraster(data = dhd_mean)+
+  geom_spatraster(data = dhd_mean_wa)+
   geom_sf(data = aus)+
   # Customizing the color scale
   scale_fill_viridis_c(option = "A", name = "Mean DHD")+
@@ -278,7 +283,7 @@ ggplot()+
   labs(x = NULL, y = NULL, 
        title = "Mean Degree Heating Days (DHD)", 
        subtitle = " Western Australia (April 20-30, 2025)")+
-  lims(x = c(110, 120), y = c(-40, -10))+
+  # lims(x = c(110, 120), y = c(-40, -10))+
   theme_bw()+
   # Formatting legend
   theme(legend.title = element_text(hjust = 0.5),
@@ -287,8 +292,6 @@ ggplot()+
         plot.title = element_text(hjust = 0.5), 
         plot.subtitle = element_text(hjust = 0.5))
 ```
-
-    ## <SpatRaster> resampled to 500742 cells.
 
 ![](figures/unnamed-chunk-9-1.png)<!-- -->
 

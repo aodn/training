@@ -105,7 +105,7 @@ Let's assume we just need data for a specific region, for example, Western Austr
   
 ```{r}
 # Define bounding box for Western Australia
-bb_wa <- c(110, 120, -40, -10)
+bb_wa <- c(112, 119, -24, -18)
 
 # Cropping mean DHD data using the bounding box
 dhd_mean_wa <- crop(dhd_mean, bb_wa)
@@ -121,14 +121,16 @@ We can see that the extent has been reduced after cropping, we will use this cro
 ```{r}
 # First we will get a map of Australia
 aus <- ne_countries(country = "Australia", scale = "medium",
-                    returnclass = "sf")
+                    returnclass = "sf") |> 
+  # Cropping map to match the extent of the DHD WA data
+  st_crop(dhd_mean_wa)
 ```
 
 Now we have all components to create a map of mean DHD in Western Australia. 
   
 ```{r}
 ggplot()+
-  geom_spatraster(data = dhd_mean)+
+  geom_spatraster(data = dhd_mean_wa)+
   geom_sf(data = aus)+
   # Customizing the color scale
   scale_fill_viridis_c(option = "A", name = "Mean DHD")+
@@ -136,7 +138,7 @@ ggplot()+
   labs(x = NULL, y = NULL, 
        title = "Mean Degree Heating Days (DHD)", 
        subtitle = " Western Australia (April 20-30, 2025)")+
-  lims(x = c(110, 120), y = c(-40, -10))+
+  # lims(x = c(110, 120), y = c(-40, -10))+
   theme_bw()+
   # Formatting legend
   theme(legend.title = element_text(hjust = 0.5),
