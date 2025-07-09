@@ -394,11 +394,6 @@ names(sst_jan_w1) <- date_sst_jan
 
 # Transforming from Kelvin to Celsius
 sst_jan_w1_celsius <- sst_jan_w1 - 273.15
-```
-
-    ## |---------|---------|---------|---------|=========================================                                          
-
-``` r
 sst_jan_w1_celsius
 ```
 
@@ -407,23 +402,23 @@ sst_jan_w1_celsius
     ## resolution  : 0.02, 0.02  (x, y)
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
-    ## source      : spat_40b86aea740b_16568_o8up7yuDdJ6XHBX.tif 
+    ## source(s)   : memory
     ## varname     : sea_surface_temperature (sea surface skin temperature) 
     ## names       : 2025-01-01, 2025-01-02, 2025-01-03, 2025-01-04, 2025-01-05, 2025-01-06, ... 
     ## min values  :  -3.111253,  -3.123773,  -3.439873,  -3.564982,  -3.099774,  -3.140474, ... 
-    ## max values  :  42.158745,  39.066227,  40.410126,  44.685017,  43.490223,  46.409527, ... 
+    ## max values  :  42.158746,  39.066226,  40.410126,  44.685017,  43.490225,  46.409525, ... 
     ## time (days) : 2025-01-01 to 2025-01-07 (7 steps)
 
 # Extracting SST data for points of interest
 
 We can extract SST data for specific points of interest using the
 `extract` function from the `terra` package. For example, we can extract
-SST data for a points in the east and west coast of Australia.
+SST data for a points in the south and west coast of Australia.
 
 ``` r
 # Defining points of interest
-points_of_interest <- data.frame(lon = c(153.4, 115.7),
-                                 lat = c(-19.5, -32)) |> 
+points_of_interest <- data.frame(lon = c(137.5, 115.7),
+                                 lat = c(-37.5, -19)) |> 
   # Converting points to a spatial object
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
@@ -435,11 +430,11 @@ sst_points
 ```
 
     ##   ID 2025-01-01 2025-01-02 2025-01-03 2025-01-04 2025-01-05 2025-01-06
-    ## 1  1   27.88875         NA   27.27013   27.98502         NA         NA
-    ## 2  2   22.50875   22.77623   21.58013   22.97502   22.95023   23.64953
+    ## 1  1   16.95875   17.55623   17.59013         NA         NA   16.73953
+    ## 2  2         NA   31.73623   31.54013   31.26502   31.86022   31.68953
     ##   2025-01-07      x      y
-    ## 1   26.93361 153.39 -19.51
-    ## 2   23.34361 115.69 -32.01
+    ## 1         NA 137.49 -37.51
+    ## 2   31.99361 115.69 -19.01
 
 We can reformat the extracted data to make it easier to read and
 visualize.
@@ -455,20 +450,20 @@ sst_points
     ## # A tibble: 14 × 5
     ##       ID     x     y date       sst_celsius
     ##    <dbl> <dbl> <dbl> <chr>            <dbl>
-    ##  1     1  153. -19.5 2025-01-01        27.9
-    ##  2     1  153. -19.5 2025-01-02        NA  
-    ##  3     1  153. -19.5 2025-01-03        27.3
-    ##  4     1  153. -19.5 2025-01-04        28.0
-    ##  5     1  153. -19.5 2025-01-05        NA  
-    ##  6     1  153. -19.5 2025-01-06        NA  
-    ##  7     1  153. -19.5 2025-01-07        26.9
-    ##  8     2  116. -32.0 2025-01-01        22.5
-    ##  9     2  116. -32.0 2025-01-02        22.8
-    ## 10     2  116. -32.0 2025-01-03        21.6
-    ## 11     2  116. -32.0 2025-01-04        23.0
-    ## 12     2  116. -32.0 2025-01-05        23.0
-    ## 13     2  116. -32.0 2025-01-06        23.6
-    ## 14     2  116. -32.0 2025-01-07        23.3
+    ##  1     1  137. -37.5 2025-01-01        17.0
+    ##  2     1  137. -37.5 2025-01-02        17.6
+    ##  3     1  137. -37.5 2025-01-03        17.6
+    ##  4     1  137. -37.5 2025-01-04        NA  
+    ##  5     1  137. -37.5 2025-01-05        NA  
+    ##  6     1  137. -37.5 2025-01-06        16.7
+    ##  7     1  137. -37.5 2025-01-07        NA  
+    ##  8     2  116. -19.0 2025-01-01        NA  
+    ##  9     2  116. -19.0 2025-01-02        31.7
+    ## 10     2  116. -19.0 2025-01-03        31.5
+    ## 11     2  116. -19.0 2025-01-04        31.3
+    ## 12     2  116. -19.0 2025-01-05        31.9
+    ## 13     2  116. -19.0 2025-01-06        31.7
+    ## 14     2  116. -19.0 2025-01-07        32.0
 
 # Extracting SST data with `remora`
 
@@ -1380,9 +1375,9 @@ mean_sst_jan_w1
     ## extent      : 70, 190, -70, 20  (xmin, xmax, ymin, ymax)
     ## coord. ref. : lon/lat WGS 84 (CRS84) (OGC:CRS84) 
     ## source(s)   : memory
-    ## name        :     mean 
-    ## min value   : -3.14639 
-    ## max value   : 40.50361
+    ## name        :      mean 
+    ## min value   : -3.146391 
+    ## max value   : 40.503609
 
 # Plotting SST data
 
@@ -1443,7 +1438,10 @@ sst_points |>
   theme_bw()
 ```
 
-    ## Warning: Removed 3 rows containing missing values or values outside the scale range
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+    ## Warning: Removed 4 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ![](figures/unnamed-chunk-19-1.png)<!-- -->
