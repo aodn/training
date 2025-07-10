@@ -169,7 +169,7 @@ Thanks to the team at the Integration and Application Network (ian.umces.edu/med
 # 5. Installing QGIS and plugins
 
 1.  Visit [qgis.org](https://qgis.org/resources/installation-guide/) for installing the latest version of QGIS.
-2.  If wanting to follow allong, we will be using Przren 3.34.3
+2.  If wanting to follow allong, we will be using LTR Bratislava 3.40
 3.  We will be using a plugin called "THREDDS Explorer". Visit [IHCantabria's GitHub](https://github.com/IHCantabria/THREDDSExplorer?tab=readme-ov-file#installation) and follow the instructions for installing (Currently only works on Windows machines).
 4.  Once installed, add a new server to the THREDDS Explorer pointing to "<https://thredds.aodn.org.au/thredds/>"
 5.  Install the "Point Sampling Tool" plugin, available through the plugin browser in QGIS
