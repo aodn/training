@@ -1,0 +1,343 @@
+---
+title: "Maria Island time-series"
+author: "E Klein"
+date: "2025-06-17"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    number_sections: true
+    theme: cosmo
+    highlight: tango
+    keep_md: true
+  github_document:
+    toc: true
+    html_preview: true
+---
+
+Last updated: `r Sys.Date()`
+
+## Goal
+
+This notebook shows how to extract and plot a temperature and salinity times series from the Maria Island mooring. We will use AODN cloud-optimised ANMN hourly product, which is delivered as a Parquet file. This file is partitioned and sorted by `site_code`, `timestap` (3 months range), and `polygon` which is a cell that contains the data.
+
+## Load packages
+We will need `arrow`, `dplyr` and `ggplot2` plus `lubridate` to manage time.
+
+```{r}
+## load libraries, suppress warnings and messages
+suppressPackageStartupMessages({
+  library(arrow)
+  library(dplyr)
+  library(ggplot2)
+  library(lubridate)
+  library(ggthemes)
+  library(kableExtra)
+  library(leaflet)
+  library(patchwork)
+})
+
+```
+
+## Load data
+
+First we need to create a connection with the cloud-optimise data store. We will use the `arrow` package to read the Parquet file. The mooring hourly time-series data is located in `s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/`
+
+
+
+```{r}
+# Create a connection to the cloud-optimised data store
+uri <- "s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/"
+## the s3_bucket function will automatically detect the region, but we can also specify it
+bucket <- s3_bucket(uri, anonymous=TRUE, region="ap-southeast-2")
+
+# Read the Parquet file
+df <- open_dataset(bucket)
+```
+
+
+This dataset contains more than 54 million lines of hourly measurements in 96 columns and it is partitioned into more than 2700 individual files. Below are the columns in the dataset. You should be able to identify the variables of interest, such as `TEMP` for temperature and `PSAL` for salinity. The time variable is `TIME`, and the actual depth is indicated by `DEPTH` and the target depth is `NOMINAL_DEPTH`. The mooring site is identified by `site_code`. This product is an aggregation of the IMOS mooring data, which is collected by the [Australian National Mooring Network (ANMN)](https://imos.org.au/facility/national-mooring-network) and has 84 locations. The instruments are programmed to collect data at different frequencies, but the data is aggregated to an hourly frequency. The data is also quality controlled and delayed, which means that the data is not available in real-time, but is available after a certain period of time.
+
+
+```{r}
+print(df$schema)
+```
+
+## Mooring Locations
+
+Let's make a map showing the locations of the moorings. Red markers indicate the National Reference Stations. This map is created using an external file that contains the mooring locations. The file was generated from the cloud-optimised product but the code is not including here as it will take long time to run. The file is available in the same directory as this notebook and is called `ANMNlocations.csv`. 
+
+```{r}
+# Load the mooring locations
+mooring_locations <- read.csv("ANMNlocations.csv", stringsAsFactors = FALSE)
+mooring_locations$NRSsize <- ifelse(mooring_locations$NRS == FALSE, 7, 12)
+mooring_locations$NRScolour <- ifelse(mooring_locations$Active == TRUE, "#5e3c99", "#b2abd2")
+mooring_locations$NRScolour <- ifelse(mooring_locations$NRS == TRUE, "#e66101", mooring_locations$NRScolour)
+
+## Map the mooring locations using leaflet. Color the markers by NRS field
+m <- leaflet(mooring_locations) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~lon, lat = ~lat,
+                   radius = ~NRSsize, 
+                   fillColor = ~NRScolour, 
+                   fillOpacity = 0.8, 
+                   stroke = TRUE,
+                   weight = 1.5,
+                   color = "black",
+                   label = ~paste(site_name, "-", site_code, " ", yearMin, " - ", yearMax),
+                   labelOptions = labelOptions(noHide = FALSE, direction = "top")) |> 
+  ## add legend
+  addLegend("bottomleft", 
+            colors = c("#e66101", "#5e3c99", "#b2abd2"), 
+            labels = c("National Reference Station", "Active Mooring", "Inactive Mooring"),
+            title = "Mooring Type",
+            opacity = 0.7) 
+
+m
+
+## save widget
+#library(htmlwidgets)
+#saveWidget(m, "mooring_locations.html", selfcontained = TRUE, title = "IMOS Mooring Locations")
+
+```
+
+
+## Get Kangaroo Island data
+
+
+As mentioned at the beginning, this dataset has `site_code` as a primary sort key. Using `filter()` we can select the data for Maria Island mooring, which has `site_code = "NRSMAI"`. These are the variables in the extracted table.
+
+```{r}
+# Filter the dataset for Maria Island mooring
+kai_data <- df |>
+  filter(site_code == "NRSKAI") |>
+  collect()  # Collect the data into a local data frame
+
+# Check the first few rows of the data
+glimpse(kai_data)
+```
+
+Now, we have the data locally in our machine. Note that there are multiple variables, not all are available for this station. The main time indicator is the variable `TIME`.
+
+## Location of the mooring
+
+We can plot the location of the Maria Island mooring using `leaflet`. The mooring coordinates are in the `LATITUDE` and `LONGITUDE` columns. We will use the `leaflet` package to create an interactive map. Note that coordinates may vary slightly depending on the deployment, but they are generally around the same location. We will take the average location for the map.
+
+```{r}
+# Calculate the average location of the mooring
+avg_location <- kai_data |>
+  summarise(lat = mean(LATITUDE, na.rm = TRUE),
+            lon = mean(LONGITUDE, na.rm = TRUE))
+# Create a leaflet map
+leaflet(avg_location) |>
+  addTiles() |>
+  addCircleMarkers(lng = ~lon, lat = ~lat,
+                   radius = 10, 
+                   fillColor = "red", 
+                   fillOpacity = 0.5, 
+                   stroke = FALSE,
+                   label = ~paste("Maria Island Mooring (NRSMAI)"),
+                   labelOptions = labelOptions(noHide = FALSE, direction = "top")) |>
+  setView(lng = avg_location$lon, lat = avg_location$lat, zoom = 7) 
+```
+
+
+## Plot temperature and salinity time series
+
+We will plot the temperature and salinity time series using `ggplot2`. Note that the mooring array has instrument depployed at different depths. With every deployment the target depth could change. The indicator of the target depth is `NOMINAL_DEPTH`. We will use the `NOMINAL_DEPTH`.
+
+Let's explore the data a bit more to see the available depths and how many data point we have for each depth.
+
+```{r}
+# Check the available depths and number of data points for each depth
+depth_summary <- kai_data |>
+  group_by(NOMINAL_DEPTH) |>
+  summarise(count = n(), .groups = 'drop') |>
+  arrange(NOMINAL_DEPTH)
+
+## Print a nice formatted table
+kbl(depth_summary) |> 
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+
+```
+
+Now we can plot the temperature and salinity time series for each depth. We will create separate plots for each depth. Let's aggregate (average) the data in 10 meter bins to make the plots more readable. We will use `facet_grid()` to create separate panels for each depth.
+
+```{r, warning=FALSE,message=FALSE}
+# Aggregate the data in 10 meter bins
+kai_data <- kai_data |>
+  mutate(NOMINAL_DEPTH = round(NOMINAL_DEPTH, -1)) |>  # Round to nearest 10m
+  group_by(TIME, NOMINAL_DEPTH) |>
+  summarise(TEMP = mean(TEMP, na.rm = TRUE),
+            PSAL = mean(PSAL, na.rm = TRUE),
+            .groups = 'drop') |> 
+  arrange(TIME, NOMINAL_DEPTH)
+# Print the first few rows of the aggregated data
+glimpse(kai_data)
+```
+
+
+
+Temperature time series: 
+
+```{r}
+# Plot temperature time series for each depth
+ggplot(kai_data, aes(x = TIME, y = TEMP)) +
+  geom_line() +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Kangaroo Island Mooring: Temperature Time Series",
+       x = "",
+       y = "Temperature (°C)") +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+
+Salinity time series:  
+
+
+```{r, warning=FALSE,message=FALSE}
+# Plot salinity time series for each depth
+ggplot(kai_data, aes(x = TIME, y = PSAL)) +
+  geom_line() +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Kangaroo Island Mooring: Salinity Time Series",
+       x = "",
+       y = "Salinity (PSU)") +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+
+## Monthly climatology
+
+We can also calculate the monthly climatology for temperature and salinity. We will use `lubridate` to extract the month from the `TIME` variable and then calculate the mean for each month. We will remove the depth of 25m as it only has a few months of data, which may skew the results. We will calculate the mean, min, max, and 0.95 and 0.05 quantiles for each month and depth.
+
+```{r}
+# Extract month from TIME and calculate monthly climatology
+# Remove DEPTH == 25 as it only has few months
+monthly_climatology <- kai_data |>
+  filter(NOMINAL_DEPTH != 25) |>
+  mutate(month = month(TIME)) |>
+  group_by(month, NOMINAL_DEPTH) |>
+  summarise(TEMPmean = mean(TEMP, na.rm = TRUE),
+            TEMPmin = min(TEMP, na.rm = TRUE),
+            TEMPmax = max(TEMP, na.rm = TRUE),
+            TEMP95 = quantile(TEMP, 0.95, na.rm = TRUE),
+            TEMP05 = quantile(TEMP, 0.05, na.rm = TRUE),
+            PSALmean = mean(PSAL, na.rm = TRUE),
+            PSALmin = min(PSAL, na.rm = TRUE),
+            PSALmax = max(PSAL, na.rm = TRUE),
+            PSAL95 = quantile(PSAL, 0.95, na.rm = TRUE),
+            PSAL05 = quantile(PSAL, 0.05, na.rm = TRUE),
+            .groups = 'drop') |> 
+  arrange(NOMINAL_DEPTH, month)
+
+# Print the monthly climatology using kable. Group rows by NOMINAL_DEPTH
+kbl(monthly_climatology[,c(1, 3:12)], col.names = c("Month", rep(c("Mean", "Min", "Max", "p0.95", "p0.05"), 2)), digits = 4) |> 
+  kable_styling(full_width = F, bootstrap_options = c("striped", "hover")) |> 
+  add_header_above(c(" " = 1, "Temperature (°C)" = 5, "Salinity (PSU)" = 5)) |>
+  pack_rows(index = c("20m" = 12, "85m" = 12, "90m" = 12 ))
+  
+
+```
+## Monthly climatology plots
+
+We can plot the monthly climatology for temperature and salinity as separate plots for each depth. The bands represent the 0.95 and 0.05 quantiles values for each month.
+
+```{r}
+# Plot monthly climatology for temperature
+ggplot(monthly_climatology, aes(x = month, y = TEMPmean, group = NOMINAL_DEPTH)) +
+  geom_line(aes(color = as.factor(NOMINAL_DEPTH))) +
+  geom_point(colour="black") +
+  geom_ribbon(aes(ymin = TEMP05, ymax = TEMP95, fill = as.factor(NOMINAL_DEPTH)), alpha = 0.2) +
+  labs(title = "Kangaroo Island Mooring: Monthly Climatology of Temperature",
+       x = "Month",
+       y = "Temperature (°C)",
+       color = "Depth (m)",
+       fill = "Depth (m)") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+# Plot monthly climatology for salinity
+ggplot(monthly_climatology, aes(x = month, y = PSALmean, group = NOMINAL_DEPTH)) +
+  geom_line(aes(color = as.factor(NOMINAL_DEPTH))) +
+  geom_ribbon(aes(ymin = PSAL05, ymax = PSAL95, fill = as.factor(NOMINAL_DEPTH)), alpha = 0.2) +
+  geom_point(colour="black") +
+  labs(title = "Kangaroo Island Mooring: Monthly Climatology of Salinity",
+       x = "Month",
+       y = "Salinity (PSU)",
+       color = "Depth (m)",
+       fill = "Depth (m)") +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  facet_grid(NOMINAL_DEPTH~.) +
+  theme_clean() +
+  theme(legend.position = "none")
+```
+
+## Monthly temperature and salinity anomalies
+
+We can calculate the monthly anomalies for temperature and salinity by subtracting the monthly climatology from the actual monthly mean values. We will use the `left_join()` function to join the monthly climatology with the original data. Plot the last five years of data.
+
+```{r, fig.width = 10, fig.height = 14}
+# Join the monthly climatology with the original data
+ki_anomalies <- kai_data |>
+  filter(NOMINAL_DEPTH != 25) |>
+  mutate(year = year(TIME), month = month(TIME)) |>
+  group_by(year, month, NOMINAL_DEPTH) |>
+  summarise(TEMP = mean(TEMP, na.rm = TRUE),
+            PSAL = mean(PSAL, na.rm = TRUE),
+            .groups = 'drop') |>
+  left_join(monthly_climatology, by = c("month", "NOMINAL_DEPTH")) |>
+  mutate(TEMP_anomaly = TEMP - TEMPmean,
+         PSAL_anomaly = PSAL - PSALmean) |>
+  mutate(TIME = make_datetime(year, month, 1)) |>
+  select(TIME, NOMINAL_DEPTH, TEMP_anomaly, PSAL_anomaly)
+
+## add a colour column to the anomalies data frame with red for positive anomalies and blue for negative anomalies
+ki_anomalies <- ki_anomalies |>
+  mutate(TEMP_color = ifelse(TEMP_anomaly > 0, "red", "blue"),
+         PSAL_color = ifelse(PSAL_anomaly > 0, "red", "blue"))
+
+
+# Plot the temperature anomalies. Plot positive anomalies in red and negative in blue
+ppTEMP <- ggplot(ki_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = TEMP_anomaly)) +
+  geom_col(aes(fill = TEMP_color)) +
+  geom_hline(yintercept = 0, color = "black") +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Kangaroo Island Mooring: Temperature Anomalies",
+       x = "",
+       y = "Temperature Anomaly (°C)") +
+  scale_fill_manual(values = c("red" = "red", "blue" = "blue")) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+
+
+# Plot the salinity anomalies. Plot positive anomalies in red and negative in blue
+ppPSAL <- ggplot(ki_anomalies |> filter(year(TIME)>=2020), aes(x = TIME, y = PSAL_anomaly)) +
+  geom_col(aes(fill = PSAL_color)) +
+  geom_hline(yintercept = 0, color = "black") +
+  facet_grid(NOMINAL_DEPTH~.) +
+  labs(title = "Kangaroo Island Mooring: Salinity Anomalies",
+       x = "",
+       y = "Salinity Anomaly (PSU)") +
+  scale_fill_manual(values = c("red" = "red", "blue" = "blue")) +
+  theme_clean() +
+  theme(legend.position = "none")
+
+ppTEMP / ppPSAL + 
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "Kangaroo Island Mooring: Monthly Anomalies",
+                  subtitle = "Temperature and Salinity Anomalies (2020-2024)",
+                  caption = "Data source: AODN cloud-optimised ANMN hourly product")
+
+```
+
+
+## Conclusion
+
+In this notebook, we have extracted and plotted the temperature and salinity time series from the Kangaroo Island mooring using the AODN cloud-optimised ANMN hourly product. We have also calculated the monthly climatology and anomalies for temperature and salinity. The plots show the variations in temperature and salinity over time, as well as the monthly climatology and anomalies for each depth.
+
+
