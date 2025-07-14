@@ -1,5 +1,5 @@
 ---
-title: "Maria Island time-series"
+title: "Kangaroo Island time-series"
 author: "E Klein"
 date: "2025-06-17"
 output: 
@@ -40,29 +40,6 @@ suppressPackageStartupMessages({
 
 ```
 
-## Load data
-
-First we need to create a connection with the cloud-optimise data store. We will use the `arrow` package to read the Parquet file. The mooring hourly time-series data is located in `s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/`
-
-
-
-```{r}
-# Create a connection to the cloud-optimised data store
-uri <- "s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/"
-## the s3_bucket function will automatically detect the region, but we can also specify it
-bucket <- s3_bucket(uri, anonymous=TRUE, region="ap-southeast-2")
-
-# Read the Parquet file
-df <- open_dataset(bucket)
-```
-
-
-This dataset contains more than 54 million lines of hourly measurements in 96 columns and it is partitioned into more than 2700 individual files. Below are the columns in the dataset. You should be able to identify the variables of interest, such as `TEMP` for temperature and `PSAL` for salinity. The time variable is `TIME`, and the actual depth is indicated by `DEPTH` and the target depth is `NOMINAL_DEPTH`. The mooring site is identified by `site_code`. This product is an aggregation of the IMOS mooring data, which is collected by the [Australian National Mooring Network (ANMN)](https://imos.org.au/facility/national-mooring-network) and has 84 locations. The instruments are programmed to collect data at different frequencies, but the data is aggregated to an hourly frequency. The data is also quality controlled and delayed, which means that the data is not available in real-time, but is available after a certain period of time.
-
-
-```{r}
-print(df$schema)
-```
 
 ## Mooring Locations
 
@@ -103,17 +80,56 @@ m
 ```
 
 
+
+
+## Load data
+
+First we need to create a connection with the cloud-optimise data store. We will use the `arrow` package to read the Parquet file. The mooring hourly time-series data is located in `s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/`
+
+
+
+```{r}
+# Create a connection to the cloud-optimised data store
+uri <- "s3://aodn-cloud-optimised/mooring_hourly_timeseries_delayed_qc.parquet/"
+## the s3_bucket function will automatically detect the region, but we can also specify it
+bucket <- s3_bucket(uri, anonymous=TRUE, region="ap-southeast-2")
+
+# Read the Parquet file
+df <- open_dataset(bucket)
+```
+
+
+This dataset contains more than 54 million lines of hourly measurements in 96 columns and it is partitioned into more than 2700 individual files. Below are the columns in the dataset. You should be able to identify the variables of interest, such as `TEMP` for temperature and `PSAL` for salinity. The time variable is `TIME`, and the actual depth is indicated by `DEPTH` and the target depth is `NOMINAL_DEPTH`. The mooring site is identified by `site_code`. This product is an aggregation of the IMOS mooring data, which is collected by the [Australian National Mooring Network (ANMN)](https://imos.org.au/facility/national-mooring-network) and has 84 locations. The instruments are programmed to collect data at different frequencies, but the data is aggregated to an hourly frequency. The data is also quality controlled and delayed, which means that the data is not available in real-time, but is available after a certain period of time.
+
+
+```{r}
+print(df$schema)
+```
+
+
 ## Get Kangaroo Island data
 
 
-As mentioned at the beginning, this dataset has `site_code` as a primary sort key. Using `filter()` we can select the data for Maria Island mooring, which has `site_code = "NRSMAI"`. These are the variables in the extracted table.
+As mentioned at the beginning, this dataset has `site_code` as a primary sort key. Using `filter()` we can select the data for Kangaroo Island mooring, which has `site_code = "NRSKAI"`. I will also calculate the daily average of the varaibles of interest, as the want to explore long time series. I will make use of the on the fly calcutation abilities of the arrowpackage, taking maximun advantage of the parquet file. These are the variables in the extracted table.
 
 ```{r}
-# Filter the dataset for Maria Island mooring
+# Filter the dataset for Maria Island mooring and calculate daily averages
 kai_data <- df |>
   filter(site_code == "NRSKAI") |>
-  collect()  # Collect the data into a local data frame
+  select(TIME, DEPTH, NOMINAL_DEPTH, TEMP, PSAL, LATITUDE, LONGITUDE) |>
+  group_by(TIME = floor_date(TIME, "day"), NOMINAL_DEPTH) |>
+  summarise(TEMP = mean(TEMP, na.rm = TRUE),
+            PSAL = mean(PSAL, na.rm = TRUE),
+            LATITUDE = mean(LATITUDE),
+            LONGITUDE = mean(LONGITUDE),
+            DEPTH= mean(DEPTH, na.rm = TRUE)) |> 
+  collect()
 
+```
+
+This is a glimpse of the data extracted:
+
+```{r}
 # Check the first few rows of the data
 glimpse(kai_data)
 ```
