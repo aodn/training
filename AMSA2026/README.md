@@ -8,20 +8,20 @@
 
 | Time     | Session                                                                                   | Speakers           |
 |----------|-------------------------------------------------------------------------------------------|--------------------|
-| 08:30 | ARRIVAL & REGISTRATION                                                                    |                    |
-| 09:00 | Welcome & acknowledgement of Country                                                      | Fabrice Jaine      |
-| 09:15 | IMOS program overview                                                                     | Fabrice Jaine      |
-| 09:45 | How reliable are IMOS Data? (IMOS practices documentation, AODN certs, acknowledgement)   | Rebecca Zitoun     |
-| 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Mark Rehbein, Vicky Issac, Bene Pasquer |
+| 09:00 | ARRIVAL & REGISTRATION                                                                    |                    |
+| 09:30 | Welcome & acknowledgement of Country                                                      | Eduardo Klein      |
+| 09:45 | IMOS program overview                                                                     | Eduardo Klein      |
+| 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Eduardo Klein      |
 | 10:45 | MORNING TEA                                                                               |                    |
-| 11:00 | IMOS OceanCurrent                                                                         | Gabriela Pilo TBC  |
-| 11:30 | IMOS Biological Ocean Observer                                                            | Claire Davies TBC  |
-| 12:30 | Introducing IMOS cloud optimised datasets                                                 | Eduardo Klein      |
+| 11:00 | What is a Cloud-Optimised file?                                                           | Tom Galindo        |
+| 11:15 | AODN Cloud optimise Library                                                               | Laurent Besnard    |
+| 12:30 | Working with IMOS cloud optimised datasets                                                | Laurent Besnard, Tom Galindo, Denisse Fierro    |
 | 13:00 | LUNCH                                                                                     |                    |
-| 13:45 | Guided tutorial: Using IMOS data in R (netcdf, cloud optimised, remora)                   | Denisse Fierro Arcos |
-| 15:15 | AFTERNOON TEA                                                                             |                    |
-| 15:45 | Guided tutorial: Using IMOS data in QGIS (spatial analyses, point extraction)             | Benjamin Stepin    |
-| 16:30 | WORKSHOP CLOSE                                                                            | Fabrice Jaine      |
+| 13:30 | Guided tutorial: Using IMOS data in R, Python adn CO tools                                | Laurent Besnard, Tom Galindo, Denisse Fierro |
+| 14:30 | Excercise: definition of case studies and working groups                                  | Facilitators and Participants |
+| 15:00 | free flowing AFTERNOON TEA                                                                |                    |
+| 15:00 | Excersice: cont.                                                                          | Facilitators and Participants |
+| 16:00 | Results and WORKSHOP CLOSE                                                                | Facilitators and Participants |
 
 
 ## Facilitators  
@@ -35,3 +35,93 @@ Eduardo Klein
 
 It is indispensable that you set up your computer with the required software before the workshop. 
 Please follow the instructions in the [pre-event instructions document](Pre-Event_Instructions.md).
+
+
+
+---
+
+## Python Environment Setup
+
+Python 3.12 or later is required. We recommend [uv](https://docs.astral.sh/uv/) for environment and package management.
+
+### With `uv` (recommended)
+
+```bash
+# From the NESP/ directory:
+uv venv && source .venv/bin/activate && uv pip install .
+```
+
+### With `pip`
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install .
+```
+
+### Running notebooks
+
+```bash
+jupyter notebook
+```
+
+Or open any `.ipynb` in your IDE and select the `.venv` as the kernel.
+
+### Key Python packages
+
+| Package | Purpose |
+|---------|---------|
+| `pyarrow` | Parquet I/O and S3 dataset connection |
+| `polars` | DataFrame and LazyFrame computation |
+| `polars-h3` | H3 spatial indexing within Polars |
+| `polars-st` | Spatial (geometry) operations in Polars |
+| `pydeck` | GPU-accelerated H3 hexagon map rendering |
+| `h3` | H3 indexing for polygon-to-cell conversion |
+| `geopandas` | Shapefile loading and CRS handling |
+| `matplotlib` / `seaborn` | Statistical plotting |
+| `rich` | Schema and table display in notebooks |
+
+> **Note:** Shared utilities live in the `nesp` package (`nesp/util.py`) and are installed when you run `uv pip install .` or `pip install .`. Notebooks import them as `from nesp import util` — no path manipulation needed.
+
+---
+
+## R Environment Setup
+
+R 4.x or later is required. Install the following packages from CRAN and GitHub before running any `.Rmd` notebook.
+
+### CRAN packages
+
+```r
+install.packages(c(
+  "arrow",      # S3 dataset connection and Parquet I/O
+  "sf",         # Spatial features
+  "dplyr",      # Data manipulation
+  "tidyr",      # Data reshaping
+  "stringr",    # String operations
+  "lubridate",  # Date/time handling
+  "ggplot2",    # Plotting
+  "leaflet"     # Interactive maps
+  "terra"       # Raster/vector operations
+))
+```
+
+### H3 for R (from GitHub)
+
+The `h3-r` package is recommended as it bundles the underlying C library automatically:
+
+```r
+# install.packages("remotes")
+remotes::install_github("crazycapivara/h3-r")
+(yes, crazycapivara...)
+```
+
+> See the [h3-r documentation](https://crazycapivara.github.io/h3-r/articles/h3.html) for usage examples.
+
+### Running notebooks
+
+Open any `.Rmd` file in RStudio and click **Knit**, or run chunks interactively.
+
+---
+
+## H3 Spatial Indexing
+
+Some datasets are spatially aggregated using the [Uber H3](https://h3geo.org/) hexagonal grid system. See [`h3.md`](h3.md) for an overview of H3 concepts, resolution levels, and why hexagons are used over traditional grids.
+
