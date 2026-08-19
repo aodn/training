@@ -4,6 +4,14 @@
 
 ## Scope  
 
+The Integrated Marine Observing System (IMOS) Australian Ocean Data Network (AODN) is updating its data collections to cloud-optimised formats, such as Zarr and Parquet. This transition changes how researchers interact with data; rather than downloading large files to a local drive, users now need to access and filter data programmatically in the cloud.
+
+Understanding the specific tools and libraries required to work with these formats is essential for efficient research. This workshop provides a hands-on technical guide for students and researchers with existing Python or R coding skills to master these new workflows.
+
+The session is built around practical applications. After introducing the AODN data collections and the cloud-optimised formats, we will provide a suite of ready-to-work notebooks featuring specific use cases, which will be selected where possible to align with the research interests of the participants. By working through these examples, attendees will learn how to connect to cloud-optimised repositories, query and subset large datasets without full downloads, and integrate AODN data directly into their existing analysis pipelines.
+
+By the end of the workshop, participants will have the code templates and technical knowledge to use the updated AODN infrastructure effectively, making their data processing faster and more reproducible.
+
 ## Agenda  
 
 | Time     | Session                                                                                   | Speakers           |
