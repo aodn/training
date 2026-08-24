@@ -42,7 +42,7 @@ Eduardo Klein
 ## Important
 
 It is indispensable that you set up your computer with the required software before the workshop. 
-Please follow the instructions in the [pre-event instructions document](Pre-Event_Instructions.md).
+Please follow the instructions below.
 
 
 
@@ -117,7 +117,7 @@ The `h3-r` package is recommended as it bundles the underlying C library automat
 ```r
 # install.packages("remotes")
 remotes::install_github("crazycapivara/h3-r")
-(yes, crazycapivara...)
+# (yes, crazycapivara...)
 ```
 
 > See the [h3-r documentation](https://crazycapivara.github.io/h3-r/articles/h3.html) for usage examples.
@@ -130,5 +130,5 @@ Open any `.Rmd` file in RStudio and click **Knit**, or run chunks interactively.
 
 ## H3 Spatial Indexing
 
-Some datasets are spatially aggregated using the [Uber H3](https://h3geo.org/) hexagonal grid system. See [`h3.md`](h3.md) for an overview of H3 concepts, resolution levels, and why hexagons are used over traditional grids.
+Some datasets are spatially aggregated using the [Uber H3](https://h3geo.org/) hexagonal grid system. See [`h3.md`](./Presentations/h3.md) for an overview of H3 concepts, resolution levels, and why hexagons are used over traditional grids.
 
