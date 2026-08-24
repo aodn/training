@@ -21,7 +21,7 @@ By the end of the workshop, participants will have the code templates and techni
 | 09:45 | IMOS program overview                                                                     | Eduardo Klein      |
 | 10:00 | Where can I access IMOS data? (overview of architecture: new portal launch, THREDDS, S3)  | Eduardo Klein      |
 | 10:45 | MORNING TEA                                                                               |                    |
-| 11:00 | What is a Cloud-Optimised file?                                                           | Tom Galindo        |
+| 11:00 | What is Cloud-Optimised Data?                                                             | Tom Galindo        |
 | 11:15 | AODN Cloud optimise Library                                                               | Laurent Besnard    |
 | 12:30 | Working with IMOS cloud optimised datasets                                                | Laurent Besnard, Tom Galindo, Denisse Fierro    |
 | 13:00 | LUNCH                                                                                     |                    |
