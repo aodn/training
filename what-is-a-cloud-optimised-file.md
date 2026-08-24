@@ -13,6 +13,7 @@ Traditional monolithic file formats require downloading the entire file to read 
 ### The Solution
 Cloud-optimized files support chunking and internal spatial or columnar indexes, allowing systems to use **HTTP range requests** to read only the bytes needed.
 
+![nc-to-co](AMSA2026/img/nc-to-co.png)
 ---
 
 # Slide 2: Why Cloud-Optimized for IMOS data?
@@ -29,6 +30,10 @@ Cloud-optimized files support chunking and internal spatial or columnar indexes,
 ## Tailored Architectures for Different Data Structures
 
 * **Parquet for Vector Data:** A columnar format optimized for tabular and geometric features, enabling fast filtering across millions of records.
+
+![seabirds-occurrence-heatmap](AMSA2026/img/seabirds-occurrence-heatmap.png)
+[Australasian Seabird Occurences (including migratory species) - Aggregated data product (1939 - ongoing) (NESP MaC 5.9, IMOS)](https://catalogue-imos.aodn.org.au/geonetwork/srv/eng/catalog.search#/metadata/ec2c0ef9-3645-4ded-b617-c8297f6eb250)
+
 * **Zarr for Gridded Data:** A chunked, N-dimensional array format designed for complex multi-variable raster and climate datasets.
 * **Metadata Separation:** Both formats allow metadata to be read instantly without scanning the full underlying dataset.
 
