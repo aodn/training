@@ -86,7 +86,7 @@ Or open any `.ipynb` in your IDE and select the `.venv` as the kernel.
 | `matplotlib` / `seaborn` | Statistical plotting |
 | `rich` | Schema and table display in notebooks |
 
-> **Note:** Shared utilities live in the `nesp` package (`nesp/util.py`) and are installed when you run `uv pip install .` or `pip install .`. Notebooks import them as `from nesp import util` — no path manipulation needed.
+> **Note:** Shared utilities live in the `util.py` module and are installed when you run `uv pip install .` or `pip install .`. Notebooks import them as `import util`, no path manipulation needed.
 
 ---
 
