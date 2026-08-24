@@ -13,35 +13,21 @@ Traditional monolithic file formats require downloading the entire file to read 
 ### The Solution
 Cloud-optimized files support chunking and internal spatial or columnar indexes, allowing systems to use **HTTP range requests** to read only the bytes needed.
 
-![nc-to-co](AMSA2026/img/nc-to-co.png)
+![nc-to-co](img/nc-to-co.png)
 ---
 
 # Slide 2: Why Cloud-Optimized for IMOS data?
-## Overcoming Legacy Storage Limits
+## Overcoming Legacy Storage Limitations of NetCDF
 
-* **Eliminated File Proliferation:** Consolidate millions of fragmented daily files into single, scalable, virtualized stores.
-* **Parallel Cloud Reading:** Chunks can be read simultaneously across distributed compute nodes without read locks.
-* **Superior Compression:** Larger, unified arrays allow compression algorithms to work across space and time dimensions.
+* **Reduce Number of Files:** Consolidate millions of fragmented daily files into single, queryable stores.
+* **Parallel Cloud Reading:** Sections/Chunks of data can be read simultaneously across distributed compute nodes without read locks. Good for big data analytics.
+* **Superior Compression:** Larger, unified arrays allow higher compression, meaning smaller files.
 * **Metadata-First Architecture:** Inspect schema and dimensions instantly without downloading or opening bulk data payloads.
 
 ---
 
 # Slide 3: Core Formats
 ## Tailored Architectures for Different Data Structures
-
-* **Parquet for Vector Data:** A columnar format optimized for tabular and geometric features, enabling fast filtering across millions of records.
-
-![seabirds-occurrence-heatmap](AMSA2026/img/seabirds-occurrence-heatmap.png)
-[Australasian Seabird Occurences (including migratory species) - Aggregated data product (1939 - ongoing) (NESP MaC 5.9, IMOS)](https://catalogue-imos.aodn.org.au/geonetwork/srv/eng/catalog.search#/metadata/ec2c0ef9-3645-4ded-b617-c8297f6eb250)
-
-* **Zarr for Gridded Data:** A chunked, N-dimensional array format designed for complex multi-variable raster and climate datasets.
-* **Metadata Separation:** Both formats allow metadata to be read instantly without scanning the full underlying dataset.
-
----
-
-# Slide 4: Parquet vs. Zarr
-## Matching the Format to the Data Model
-
 Different data models require different structural optimizations for cloud-native performance.
 
 | Feature | Parquet | Zarr |
@@ -50,15 +36,30 @@ Different data models require different structural optimizations for cloud-nativ
 | **Data Layout** | Columnar Storage | Chunked Array Blocks |
 | **Key Use Case** | Point observations, polygons, tables | Satellite imagery, climate models, rasters |
 
-* **Byte-Range Requests:** Both formats eliminate full-file downloads by reading target byte ranges directly.
+### **Parquet for Vector/Tabular Data:**
+A columnar format optimized for tabular and geometric features, enabling fast filtering across millions of records.
+
+![seabirds-occurrence-heatmap](img/seabirds-occurrence-heatmap.png)
+[Australasian Seabird Occurences (including migratory species) - Aggregated data product (1939 - ongoing) (NESP MaC 5.9, IMOS)](https://catalogue-imos.aodn.org.au/geonetwork/srv/eng/catalog.search#/metadata/ec2c0ef9-3645-4ded-b617-c8297f6eb250)
+
+### **Zarr for Gridded Data:** 
+A chunked, N-dimensional array format designed for complex multi-variable raster and climate datasets.
+
+![sst-austemp](img/sst-austemp.png)
+[IMOS - AusTemp - Heat stress and marine heatwave and cold-spell monitoring metrics for the Australian Coast ](https://catalogue-imos.aodn.org.au/geonetwork/srv/eng/catalog.search#/metadata/2ffccdad-1197-4e41-b412-a9033517cfb2)
 
 ---
 
 # Slide 5: Pracitcal Advantages
 ## Faster Insights, Less Overhead
 
-* **Faster Subsetting:** Fetch only the specific spatial boundary, variable, or time slice you need using direct HTTP range requests—no full-file reads required.
-* **Rapid Downloads:** Smaller, better compressed data payloads mean vastly reduced transfer times and lower bandwidth usage.
-* **Instant Schema Access:** Inspect data structure, coordinate reference systems, and variable metadata instantly without parsing heavy payload files.
+### **Rapid Downloads**
+Better compressed data payloads mean reduced transfer times and lower bandwidth usage.
+
+### **Faster Subsetting**
+Fetch only the specific spatial boundary, variable, or time slice you need using direct HTTP range requests—no full-file reads required.
+
+### **Instant Schema Access**
+Inspect data structure, coordinate reference systems, and variable metadata instantly without parsing heavy payload files.
 
 ---
