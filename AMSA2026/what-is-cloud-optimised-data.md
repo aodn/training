@@ -1,4 +1,4 @@
-# Slide 1: Introduction to Cloud-Optimized Files
+# Slide 1: Introduction to Cloud-Optimized Data
 ## Rethinking Data Storage: Introduction to Cloud-Optimized Formats
 **Modern File Architectures for Large-Scale Geospatial Analytics**
 
