@@ -55,8 +55,7 @@ Python 3.12 or later is required. We recommend [uv](https://docs.astral.sh/uv/) 
 ### With `uv` (recommended)
 
 ```bash
-# From the NESP/ directory:
-uv venv && source .venv/bin/activate && uv pip install .
+uv sync && source .venv/bin/activate
 ```
 
 ### With `pip`
