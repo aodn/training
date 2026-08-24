@@ -49,7 +49,7 @@ Different data models require different structural optimizations for cloud-nativ
 
 ---
 
-# Slide 5: User Benefits
+# Slide 5: Pracitcal Advantages
 ## Faster Insights, Less Overhead
 
 * **Faster Subsetting:** Fetch only the specific spatial boundary, variable, or time slice you need using direct HTTP range requests—no full-file reads required.
