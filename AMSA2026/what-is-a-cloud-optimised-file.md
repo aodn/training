@@ -11,13 +11,15 @@ Storage formats designed specifically to enable fast, efficient access to massiv
 Traditional monolithic file formats require downloading the entire file to read a subset of data. This creates bandwidth bottlenecks and slow compute workflows at scale.
 
 ### The Solution
-Cloud-optimized files support chunking and internal spatial or columnar indexes, allowing systems to use **HTTP range requests** to read only the bytes needed.
+Cloud-optimized files support chunking and internal spatial or columnar indexes, allowing systems to pre-filter the source data and read only the data requested.
 
 ![nc-to-co](img/nc-to-co.png)
 ---
 
 # Slide 2: Why Cloud-Optimized for IMOS data?
 ## Overcoming Legacy Storage Limitations of NetCDF
+
+![`IMOS` NetCDF](img/aodn-nc.png)
 
 * **Reduce Number of Files:** Consolidate millions of fragmented daily files into single, queryable stores.
 * **Parallel Cloud Reading:** Sections/Chunks of data can be read simultaneously across distributed compute nodes without read locks. Good for big data analytics.
