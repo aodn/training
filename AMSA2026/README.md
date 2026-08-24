@@ -25,7 +25,7 @@ By the end of the workshop, participants will have the code templates and techni
 | 11:15 | AODN Cloud optimise Library                                                               | Laurent Besnard    |
 | 12:30 | Working with IMOS cloud optimised datasets                                                | Laurent Besnard, Tom Galindo, Denisse Fierro    |
 | 13:00 | LUNCH                                                                                     |                    |
-| 13:30 | Guided tutorial: Using IMOS data in R, Python adn CO tools                                | Laurent Besnard, Tom Galindo, Denisse Fierro |
+| 13:30 | Guided tutorial: Using IMOS data in R, Python `AODN` CO tools                             | Laurent Besnard, Tom Galindo, Denisse Fierro |
 | 14:30 | Excercise: definition of case studies and working groups                                  | Facilitators and Participants |
 | 15:00 | free flowing AFTERNOON TEA                                                                |                    |
 | 15:00 | Excersice: cont.                                                                          | Facilitators and Participants |
