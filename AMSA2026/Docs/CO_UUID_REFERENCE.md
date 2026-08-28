@@ -65,7 +65,6 @@ Example with AusTemp product:
 | `mooring_timeseries_realtime_qc` | `a8f5c736-6eaa-47fb-a9eb-d778beb71701` | config | parquet |
 | `mooring_wave_timeseries_delayed_qc` | `aaebf991-b79d-4670-a1c5-a0de9bf649ce` | config | zarr |
 | `ocean_glider_delayed_qc` | `c317b0fe-02e8-4ff9-96c9-563fd58e82ac` | config | parquet |
-| `ocean_glider_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
 | `ocean_glider_realtime_nonqc` | `a681fdba-c6d9-44ab-90b9-113b0ed03536` | config | parquet |
 | `radar_BonneyCoast_velocity_hourly_averaged_delayed_qc` | `38dd003d-2f71-4715-bd3f-4b1cfdce391d` | config | zarr |
 | `radar_BonneyCoast_velocity_hourly_averaged_realtime_nonqc` | `4a1608ab-ebdd-4f98-93c3-15f2da87bfa0` | config | zarr |
@@ -93,12 +92,6 @@ Example with AusTemp product:
 | `radar_SouthAustraliaGulfs_wind_delayed_qc` | `db049981-3d4e-4cb2-9c4b-e697650845b9` | config | zarr |
 | `radar_TurquoiseCoast_velocity_hourly_averaged_delayed_qc` | `055342fc-f970-4be7-a764-8903220d42fb` | config | zarr |
 | `radar_TurquoiseCoast_velocity_hourly_averaged_realtime_nonqc` | `52f09a23-63a2-4c14-8b3b-1fc7c8167281` | config | zarr |
-| `radar_velocity_hourly_averaged_delayed_qc_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `radar_velocity_hourly_averaged_delayed_qc_no_I_J_version_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `radar_velocity_hourly_averaged_realtime_nonqc_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `radar_velocity_hourly_averaged_realtime_nonqc_no_I_J_version_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `radar_wave_delayed_qc_no_I_J_version_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `radar_wind_delayed_qc_no_I_J_version_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
 | `satellite_austemp_degree-heating-day_australia` | `e1f2476a-b801-4a1f-9fbe-727b4f76f726` | co file | zarr |
 | `satellite_austemp_dhd_14day` | `e1f2476a-b801-4a1f-9fbe-727b4f76f726` | config | zarr |
 | `satellite_austemp_heatwave_14day` | `2ffccdad-1197-4e41-b412-a9033517cfb2` | config | zarr |
@@ -142,7 +135,6 @@ Example with AusTemp product:
 | `satellite_ghrsst_l3s_1month_nighttime_multi_sensor_australia` | `1aa787da-a9ba-494a-ae22-0c3eee2491e1` | config | zarr |
 | `satellite_ghrsst_l3s_1month_nighttime_single_sensor_australia` | `d9618fb2-1a71-4afd-b1c8-56a6871b224a` | config | zarr |
 | `satellite_ghrsst_l3s_3day_daynighttime_multi_sensor_australia` | `4cbb9eeb-9ed3-4079-a180-2293a2c219b9` | config | zarr |
-| `satellite_ghrsst_l3s_3day_daynighttime_single_sensor_australia` | `34110d06-707b-4f73-970e-9b38e9fcb7da` | config | NOT IN BUCKET |
 | `satellite_ghrsst_l3s_3day_daytime_multi_sensor_australia` | `08e04227-4da1-479b-bec1-06ee27a69a40` | config | zarr |
 | `satellite_ghrsst_l3s_3day_nighttime_multi_sensor_australia` | `b28ab00c-06f9-4cef-9053-4ff3bf537bb7` | config | zarr |
 | `satellite_ghrsst_l3s_6day_daynighttime_multi_sensor_australia` | `95b81267-bad2-4939-8559-45b0d0c6f2e9` | config | zarr |
@@ -153,13 +145,9 @@ Example with AusTemp product:
 | `satellite_ghrsst_l3s_6day_nighttime_single_sensor_australia` | `f9d6616a-f359-4418-979a-e7b89b5b9086` | config | zarr |
 | `satellite_ghrsst_l4_gamssa_1day_multi_sensor_world` | `2d496463-600c-465a-84a1-8a4ab76bd505` | config | zarr |
 | `satellite_ghrsst_l4_ramssa_1day_multi_sensor_australia` | `a4170ca8-0942-4d13-bdb8-ad4718ce14bb` | config | zarr |
-| `satellite_ghrsst_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
 | `satellite_nanoplankton_fraction_oc3_1day_aqua` | `9fde091c-9d38-4b2f-ba23-c262c21a41a2` | config | zarr |
 | `satellite_net_primary_productivity_gsm_1day_aqua` | `27cc65c0-d453-4ba3-a0d6-55e4449fee8c` | config | zarr |
 | `satellite_net_primary_productivity_oc3_1day_aqua` | `b35b829c-9149-46c6-9e25-d0fd03463280` | config | zarr |
-| `satellite_ocean_colour_1day_aqua_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `satellite_ocean_colour_1day_noaa20_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
-| `satellite_ocean_colour_1day_snpp_main` | `NO UUID FOUND` | none | NOT IN BUCKET |
 | `satellite_optical_water_type_1day_aqua` | `60e57a2e-f88c-4b18-a3a1-1164c6259a10` | config | zarr |
 | `satellite_optical_water_type_1day_noaa20` | `5f359ca7-396a-4c1a-8388-77a50ad39859` | config | zarr |
 | `satellite_optical_water_type_1day_snpp` | `8f44f09a-07a3-4f9b-ba26-2fc4983fef69` | config | zarr |
@@ -177,9 +165,7 @@ Example with AusTemp product:
 | `station_lucinda_jetty_dalec` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | zarr |
 | `station_lucinda_jetty_dalec_derived_product` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | zarr |
 | `station_lucinda_jetty_hourly_satlantic_hyperocr` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | zarr |
-| `station_lucinda_jetty_hourly_satlantic_hyperocr_derived_product` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | NOT IN BUCKET |
 | `station_lucinda_jetty_hourly_wetlabs_acs` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | zarr |
-| `station_lucinda_jetty_hourly_wetlabs_bb9` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | NOT IN BUCKET |
 | `station_lucinda_jetty_hourly_wetlabs_ecotriplet` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | parquet |
 | `station_lucinda_jetty_hourly_wetlabs_wqm` | `4ac6bf81-cd37-4611-8da8-4d5ae5e2bda3` | config | parquet |
 | `station_nrs_wireless_sensor_network_realtime_qc` | `006bb7dc-860b-4b89-bf4c-6bd930bd35b7` | config | parquet |
