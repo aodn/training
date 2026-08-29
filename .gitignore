@@ -47,3 +47,7 @@ Data/
 *.env
 config/
 .config/
+
+# directories
+./AMSA2026/kk/
+
