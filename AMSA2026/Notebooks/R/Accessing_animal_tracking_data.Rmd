@@ -1,5 +1,5 @@
 ---
-title: "Dugong aerial survey
+title: "Dugong aerial survey"
 author: "Denisse Fierro Arcos"
 date: "2026-08-28"
 output: 
@@ -32,6 +32,7 @@ library(lubridate)
 library(stringr)
 #Plotting
 library(ggplot2)
+library(tidyterra)
 #Base maps
 library(rnaturalearth)
 #Spatial data
@@ -52,7 +53,7 @@ ds <- open_dataset(
   "s3://data-uplift-public/stored/datauplift/dugong/dugong.parquet")
 ```
 
-We can check the file structure (i.e., schema) of the seabird dataset. This will give us the name of the columns contained in the dataset, which can help us filter the data before accessing.  
+We can check the file structure (i.e., schema) of the dugong dataset. This will give us the name of the columns contained in the dataset, which can help us filter the data before accessing.  
 
 ```{r}
 ds$schema
@@ -171,7 +172,7 @@ sst_names <- srs_cat$get_dataset_names() |>
 sst_names
 ```
   
-We have seven datasets available for the duration of the 2023 dugong aerial survey, which is exactly what we wanted. Once again, this method to explore the catalog is more time-consuming, so unless you're familiar with the structure of the catalog, we highlight recommend you use the web browser instead.
+We have 10 datasets available for the duration of the 2023 dugong aerial survey, which is exactly what we wanted. Once again, this method to explore the catalog is more time-consuming, so unless you're familiar with the structure of the catalog, we highly recommend you use the web browser instead.
   
 We now need a complete URL to download the SST data as shown below.
 
@@ -278,7 +279,7 @@ sst_points
 # Calculating mean SST for the duration of the 2023 dugong aerial survey
 
 ```{r}
-mean_sst <- mean(sst_dugongs, na.rm = TRUE)
+mean_sst <- mean(sst_dugongs_celsius, na.rm = TRUE)
 mean_sst
 ```
   
