@@ -22,7 +22,6 @@ Cloud-optimized files support chunking and internal spatial or columnar indexes,
 ![`IMOS` NetCDF](img/aodn-nc.png)
 
 * **Reduce Number of Files:** Consolidate millions of fragmented daily files into single, queryable stores.
-* **Parallel Cloud Reading:** Sections/Chunks of data can be read simultaneously across distributed compute nodes without read locks. Good for big data analytics.
 * **Superior Compression:** Larger, unified arrays allow higher compression, meaning smaller files.
 * **Metadata-First Architecture:** Inspect schema and dimensions instantly without downloading or opening bulk data payloads.
 
