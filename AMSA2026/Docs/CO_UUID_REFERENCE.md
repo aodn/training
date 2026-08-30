@@ -119,8 +119,6 @@ Example with AusTemp product:
 | `satellite_ghrsst_l3c_1day_nighttime_snpp_australia` | `a05817da-fdab-483a-a965-b26fe364ad7c` | config | zarr |
 | `satellite_ghrsst_l3c_4hour_himawari8` | `06d2fff4-8e2c-4bd7-b98f-cd98e588df6f` | config | zarr |
 | `satellite_ghrsst_l3s_1day_daynighttime_multi_sensor_australia` | `d7f3178d-869a-4eac-959d-71d1f5e24888` | config | zarr |
-| `satellite_ghrsst_l3s_1day_daynighttime_multi_sensor_southernocean` | `NO UUID FOUND` | none | zarr |
-| `satellite_ghrsst_l3s_1day_daynighttime_single_sensor_australia` | `a136eee7-a990-4c06-a4f6-915657a2464e` | config | zarr |
 | `satellite_ghrsst_l3s_1day_daynighttime_single_sensor_southernocean` | `165a23d7-5ef3-4cab-9e02-90c8adb941dd` | config | zarr |
 | `satellite_ghrsst_l3s_1day_daytime_multi_sensor_australia` | `52ad55a5-b537-4e10-8a81-22d9317c81f2` | config | zarr |
 | `satellite_ghrsst_l3s_1day_daytime_single_sensor_australia` | `8bd3fe33-fd98-4307-ad23-424ad9a2907b` | config | zarr |
