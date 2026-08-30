@@ -40,6 +40,7 @@ library(terra)
 library(thredds)
 #Downloading data
 library(curl)
+library(h3)
 ```
 
 ## Accessing the Dugong Aerial Survey dataset with `arrow`
@@ -89,5 +90,49 @@ ggplot()+
   theme_bw()
 ```
 
+```{r}
+pts <- seabird_gipps |> 
+  group_by(h3Index) |> 
+  count()
+
+pts_h3 <- h3_to_geo_boundary_sf(pts$h3Index) |> 
+  left_join(pts, by = c("h3_index" = "h3Index"))
+
+ggplot()+
+  geom_sf(data = australia)+
+  geom_sf(data = pts_h3, aes(fill = n), alpha = 0.5)+
+  geom_point(data = seabird_gipps, aes(decimalLongitude, decimalLatitude),
+             colour = "red", size = 0.5)+
+  lims(x = c(min(seabird_gipps$decimalLongitude)-1,
+             max(seabird_gipps$decimalLongitude)+1),
+       y = c(min(seabird_gipps$decimalLatitude)-1,
+             max(seabird_gipps$decimalLatitude)+1))+
+  theme_bw()
+```
+
+```{r}
+pts_h3_high <- seabird_gipps[,c("decimalLatitude", "decimalLongitude")] |> 
+  geo_to_h3(res = 5) 
+
+
+pts_high <- seabird_gipps |> 
+  mutate(h3_7 = pts_h3_high) |> 
+  group_by(h3_7) |> 
+  count()
+
+pts_h3_7 <- h3_to_geo_boundary_sf(pts_high$h3_7) |> 
+  left_join(pts_high, by = c("h3_index" = "h3_7"))
+
+ggplot()+
+  geom_sf(data = australia)+
+  geom_sf(data = pts_h3_7, aes(fill = n))+
+  geom_point(data = seabird_gipps, aes(decimalLongitude, decimalLatitude),
+             colour = "red", size = 0.5)+
+  lims(x = c(min(seabird_gipps$decimalLongitude)-1,
+             max(seabird_gipps$decimalLongitude)+1),
+       y = c(min(seabird_gipps$decimalLatitude)-1,
+             max(seabird_gipps$decimalLatitude)+1))+
+  theme_bw()
+```
 
   
