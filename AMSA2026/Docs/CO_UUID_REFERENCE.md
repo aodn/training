@@ -16,7 +16,7 @@ To connect to the AWS S3 store just add the name of the cloud optimised product 
 
 Example with AusTemp product:  
 
-`s3://aond-cloud-optimised/satellite_austemp_heatwave_14day.zarr/`  
+`s3://aodn-cloud-optimised/satellite_austemp_heatwave_14day.zarr/`  
 
 ------------------------
 
