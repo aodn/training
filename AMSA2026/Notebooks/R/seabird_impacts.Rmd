@@ -1,0 +1,93 @@
+---
+title: "Seabird impacts"
+date: "2026-08-30"
+output: 
+  github_document:
+    toc: true
+    html_preview: true
+always_allow_html: true
+---
+
+```{r, echo = F}
+knitr::opts_chunk$set(fig.path = "figures/") 
+```
+
+
+# Introduction
+
+
+
+# Loading required libraries
+  
+```{r libraries, results = "hide", message = F, warning = F}
+library(arrow)
+#Data manipulation
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(lubridate)
+library(stringr)
+#Plotting
+library(ggplot2)
+library(tidyterra)
+#Base maps
+library(rnaturalearth)
+#Spatial data
+library(sf)
+#Gridded data
+library(terra)
+#Connection to THREDDS
+library(thredds)
+#Downloading data
+library(curl)
+```
+
+## Accessing the Dugong Aerial Survey dataset with `arrow`
+From the metadata catalogue we obtain the URI and create a connection to the dataset using the `arrow` package. By using the `open_dataset` function, we are able to access the data stored in the server, but we don't load the dataset just yet. Instead we will inspect the contents of this dataset to check if our computer can handle the entire dataset being loaded.
+
+```{r}
+ds <- open_dataset(
+  "s3://aodn-cloud-optimised/aggregated_seabird_nonqc.parquet")
+```
+
+We can check the file structure (i.e., schema) of the dugong dataset. This will give us the name of the columns contained in the dataset, which can help us filter the data before accessing.  
+
+```{r}
+ds$schema
+```
+```{r}
+# -38.047884, 145.454860
+# -39.564776, 150.471827
+
+
+seabird_gipps <- ds |> 
+ filter(decimalLatitude >= -40 & decimalLatitude <= -38 &
+          decimalLongitude >= 145 & decimalLongitude <= 150.5) |> 
+  collect()
+```
+
+From here, we can see there are `r length(ds$schema)` columns, but we can check how many records in total are included in the dataset as follows:  
+
+```{r}
+seabird_gipps |> 
+  count(year(eventDate))
+```
+```{r}
+australia <- ne_countries(country = "Australia", scale = "medium",
+                          returnclass = "sf")
+
+
+ggplot()+
+  geom_sf(data = australia)+
+  geom_point(data = seabird_gipps, 
+             aes(decimalLongitude, decimalLatitude, 
+                 colour = as.factor(year(eventDate))))+
+  lims(x = c(min(seabird_gipps$decimalLongitude),
+             max(seabird_gipps$decimalLongitude)),
+       y = c(min(seabird_gipps$decimalLatitude),
+             max(seabird_gipps$decimalLatitude)))+
+  theme_bw()
+```
+
+
+  
